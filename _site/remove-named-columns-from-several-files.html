@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>GenomeBio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="/css/theme.css" rel="stylesheet" type="text/css">
+  <link href="/css/syntax.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <nav class="navbar-fixed-top bg-primary">
+    <span class="navbar-brand">Bioinformatics notes from a biologist</span>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/">Home</a></li>
+      <li class="active"><a href="/archive.html">Archive</a></li>
+    </ul>
+  </nav>
+  
+</body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 hidden-xs">
+            <div class=well>
+  <div class="sidebar">
+    22 September 2020
+  </div>
+  <div class="sidebar">
+    <h1>Recent Posts</h1>
+    <ul>
+        
+          <li><a href="/rename-files-from-file">Batch rename files from a file</a></li>
+        
+          <li><a href="/one-liners-in-bioinformatics">One liners in bioinformatics (ever updating)</a></li>
+        
+          <li><a href="/remove-named-columns-from-several-files">Remove named columns from several files</a></li>
+        
+          <li><a href="/reorganize-and-rename-fasta">Reorganize and rename fasta</a></li>
+        
+          <li><a href="/tidy-pivot-longer-matching-pairs-of">Clean data with altenating match pair columns</a></li>
+        
+    </ul>
+  </div>
+  <div class="sidebar">
+    <h1>Links</h1>
+<ul>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/svsk/">Linkedin</a></li>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.github.com/svsuresh">Github</a></li>
+</ul>
+
+  </div>
+</div>
+        </div>
+        <div class="col-md-9">
+          <div class="article">
+            <div class="well">
+                <h1><a href="/remove-named-columns-from-several-files">Sep 3, 2020 - Remove named columns from several files</a></h1>
+            <div class="post-content">
+            <p style="text-align: justify;">Let us say you have 100 files (csv/tsv) and you would like to remove a column named "event" from all the files. You can do it with <a href="https://www.gnu.org/software/parallel/">gnu-parallel </a>and&nbsp; with one of the two excellent tools: <a href="https://github.com/eBay/tsv-utils">tsv-utils</a> and <a href="https://github.com/shenwei356/csvtk">csvtk</a>. Following is code to remove named columns from several text files in parallel:</p><p style="text-align: justify;">with parallel and tsv-utils: <br /></p><p style="text-align: justify;">================================================================ <br /></p><p style="text-align: justify;">$ parallel 'tsv-select -H -d "," -e "event" {} &gt; output_directory/{.}_new.csv' ::: *.csv<br /></p><p style="text-align: justify;">-H - header</p><p style="text-align: justify;">-d - delimiter is comma</p><p style="text-align: justify;">-e - exclude</p><p style="text-align: justify;">"event" - column name to be excluded&nbsp;</p><p style="text-align: justify;">{.} - Removes the extension of the file<br /></p><p style="text-align: justify;">=================================================================</p><p style="text-align: justify;">with parallel and csvtk:<br /></p><p style="text-align: justify;">=================================================================</p><p style="text-align: justify;">$ parallel csvtk cut -f -event {} -o {.}_new.txt ::: *.txt</p><p style="text-align: justify;">-f - option to remove exact string (-F means you can use regex)<br /></p><p style="text-align: justify;">-event&nbsp; -remove event column and keep rest of the columns (if it is "event" instead of "-event", then program would retain only event column)<br /></p><p style="text-align: justify;">================================================================= <br /><br /><br /></p>
+            </div>
+          </div>
+          <div class="pagination">
+              
+                <a class="btn btn-default" href="/one-liners-in-bioinformatics" class="next">Newer Post</a>
+              
+              
+                <a class="btn btn-default" href="/reorganize-and-rename-fasta" class="previous">Older Post</a>
+              
+          </div>
+        </div>
+    </div>
+</div>
+
+<body>
+<html>	
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 footer navbar-inverse navbar-fixed-bottom">
+            <p class="copyright">&copy;2020 GenomeBio. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            under
+            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

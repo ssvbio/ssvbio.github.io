@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>GenomeBio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="/css/theme.css" rel="stylesheet" type="text/css">
+  <link href="/css/syntax.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <nav class="navbar-fixed-top bg-primary">
+    <span class="navbar-brand">Bioinformatics notes from a biologist</span>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/">Home</a></li>
+      <li class="active"><a href="/archive.html">Archive</a></li>
+    </ul>
+  </nav>
+  
+</body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 hidden-xs">
+            <div class=well>
+  <div class="sidebar">
+    22 September 2020
+  </div>
+  <div class="sidebar">
+    <h1>Recent Posts</h1>
+    <ul>
+        
+          <li><a href="/rename-files-from-file">Batch rename files from a file</a></li>
+        
+          <li><a href="/one-liners-in-bioinformatics">One liners in bioinformatics (ever updating)</a></li>
+        
+          <li><a href="/remove-named-columns-from-several-files">Remove named columns from several files</a></li>
+        
+          <li><a href="/reorganize-and-rename-fasta">Reorganize and rename fasta</a></li>
+        
+          <li><a href="/tidy-pivot-longer-matching-pairs-of">Clean data with altenating match pair columns</a></li>
+        
+    </ul>
+  </div>
+  <div class="sidebar">
+    <h1>Links</h1>
+<ul>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/svsk/">Linkedin</a></li>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.github.com/svsuresh">Github</a></li>
+</ul>
+
+  </div>
+</div>
+        </div>
+        <div class="col-md-9">
+          <div class="article">
+            <div class="well">
+                <h1><a href="/simulate-protein-sequences">Jun 8, 2016 - Generate random amino acid sequences using python/biopython</a></h1>
+            <div class="post-content">
+            <div dir="ltr" style="text-align: left;" trbidi="on">
+Earlier posts in this blog outlined random sequence generation in R and Python/Biopython. In this note, random sequence generation for proteins is outlined. 
+Objective of the study is to simulate protein (aminoacid) sequence after taking 
+following inputs from user:<br />
+1) Length of the desired sequence<br />
+2) Desired number of sequences<br />
+<br />
+script
+ will take above input and stores the sequences in the same folder where
+ code is executed with date and time stamp. Stored format is fasta.<br />
+<br />
+============================================<br />
+from Bio.Alphabet import IUPAC<br />
+import random<br />
+from datetime import datetime<br />
+<br />
+n=int(input("type the length of the sequence: "))<br />
+j=int(input("type the number of sequences: "))<br />
+<br />
+sequnce=IUPAC.IUPACProtein.letters.upper()<br />
+<br />
+# print(sequnce)<br />
+# print(list(sequnce))<br />
+# print (random.choice(sequnce))<br />
+# print (random.sample(sequnce,2))<br />
+# print (''.join(random.sample(sequnce,4)))<br />
+<br />
+pfile = open("aasequence_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".fa", "a")<br />
+for j in range(j):<br />
+&nbsp;&nbsp;&nbsp; my_seq=''.join(random.choice(sequnce) for i in range(n))<br />
+&nbsp;&nbsp;&nbsp; id="seq "+str(j+1)<br />
+&nbsp;&nbsp;&nbsp; my_seq = "&gt;"+id+"\n"+my_seq <br />
+&nbsp;&nbsp;&nbsp; pfile.write(my_seq+"\n")<br />
+pfile.close()<br />
+============================================<br />
+Please note that python is particular about indentation and make sure that indentation is correct. </div>
+
+            </div>
+          </div>
+          <div class="pagination">
+              
+                <a class="btn btn-default" href="/box-plots-and-connect-by-median" class="next">Newer Post</a>
+              
+              
+                <a class="btn btn-default" href="/generate-random-dna-elements-using" class="previous">Older Post</a>
+              
+          </div>
+        </div>
+    </div>
+</div>
+
+<body>
+<html>	
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 footer navbar-inverse navbar-fixed-bottom">
+            <p class="copyright">&copy;2020 GenomeBio. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            under
+            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

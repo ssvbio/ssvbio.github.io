@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>GenomeBio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="/css/theme.css" rel="stylesheet" type="text/css">
+  <link href="/css/syntax.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <nav class="navbar-fixed-top bg-primary">
+    <span class="navbar-brand">Bioinformatics notes from a biologist</span>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/">Home</a></li>
+      <li class="active"><a href="/archive.html">Archive</a></li>
+    </ul>
+  </nav>
+  
+</body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 hidden-xs">
+            <div class=well>
+  <div class="sidebar">
+    22 September 2020
+  </div>
+  <div class="sidebar">
+    <h1>Recent Posts</h1>
+    <ul>
+        
+          <li><a href="/rename-files-from-file">Batch rename files from a file</a></li>
+        
+          <li><a href="/one-liners-in-bioinformatics">One liners in bioinformatics (ever updating)</a></li>
+        
+          <li><a href="/remove-named-columns-from-several-files">Remove named columns from several files</a></li>
+        
+          <li><a href="/reorganize-and-rename-fasta">Reorganize and rename fasta</a></li>
+        
+          <li><a href="/tidy-pivot-longer-matching-pairs-of">Clean data with altenating match pair columns</a></li>
+        
+    </ul>
+  </div>
+  <div class="sidebar">
+    <h1>Links</h1>
+<ul>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/svsk/">Linkedin</a></li>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.github.com/svsuresh">Github</a></li>
+</ul>
+
+  </div>
+</div>
+        </div>
+        <div class="col-md-9">
+          <div class="article">
+            <div class="well">
+                <h1><a href="/concatenate-two-columns-in-r">May 14, 2018 - concatenate two columns in R </a></h1>
+            <div class="post-content">
+            <div dir="ltr" style="text-align: left;" trbidi="on">
+<div style="text-align: justify;">
+In R, there are things that are super easy and there are simple things that are frustrating to do. I came across such a thing yesterday. Concatenating two columns of a matrix. There are millions of solutions online to do this. Most of them are almost same thing again and again and some of them are convoluted. However, none addressed the issue. Issue is that from an output with two columns, one should concatenate columns. There are tidyverse solutions and I was looking for simple solutions.&nbsp;</div>
+<div style="text-align: justify;">
+<br /></div>
+<div style="text-align: justify;">
+Let us create a data frame with 3 columns:</div>
+<div style="text-align: justify;">
+<br /></div>
+<div style="text-align: justify;">
+$ test=data.frame(let=sample(letters,10),LET=sample(LETTERS,10),tel=sample(letters,10))</div>
+<div style="text-align: justify;">
+<br /></div>
+<div style="text-align: justify;">
+Then let us concatenate columns 2,3:</div>
+<div style="text-align: justify;">
+<br /></div>
+<div style="text-align: justify;">
+$ library(assertr)</div>
+<div style="text-align: justify;">
+$ col_concat(test[,c(2:3)], sep="_")</div>
+<div style="text-align: justify;">
+<br /></div>
+<div style="text-align: justify;">
+Output would be:</div>
+&gt; col_concat(test[,c(2:3)], sep="_")&nbsp;<div>
+[1] "C_z" "I_p" "Y_k" "N_m" "D_b" "Z_c" "H_l" "B_y" "K_u" "T_q"</div>
+<div>
+<br /></div>
+<div>
+Because this frame already exists, the same can be achieved by paste. However, these two columns are output from a different function, there is no easier way to merge columns.&nbsp; This is one of the easiest solutions.<br /><div style="text-align: justify;">
+<br /></div>
+</div>
+</div>
+
+            </div>
+          </div>
+          <div class="pagination">
+              
+                <a class="btn btn-default" href="/back-referencing-and-string" class="next">Newer Post</a>
+              
+              
+                <a class="btn btn-default" href="/volcano-plot-with-ggplot2-and-basic" class="previous">Older Post</a>
+              
+          </div>
+        </div>
+    </div>
+</div>
+
+<body>
+<html>	
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 footer navbar-inverse navbar-fixed-bottom">
+            <p class="copyright">&copy;2020 GenomeBio. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            under
+            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
