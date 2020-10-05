@@ -1,10 +1,10 @@
 ---
+title: "Percentage pie chart in R"
 layout: post
-title: Pie chart with ggplot2 and iris data
 categories: iris 'pie chart' CRAN-R ggplot2
 ---
 
-Here is the code on pie chart with ggplot2 and iris data set. Only Sepal
+Here is the code on drawing pie chart with percentages with ggplot2 and iris data set. Only Sepal
 length variable is used in this tutorial
 
 Load libraries
