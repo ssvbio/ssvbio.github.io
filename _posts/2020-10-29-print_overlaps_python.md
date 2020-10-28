@@ -11,7 +11,7 @@ Let us say you are asked to generate substrings of a large string with a defined
 import numpy as np
 import sys
 ```
-#### user input. Input string as string, second argument is length of the substring and third argument is overlap window size. All must be supplied by a space in between.
+#### Collect user input, as three arguments. First input is a string and will be converted as string. Second argument is length of the substring and third argument is overlap window size. All must be supplied by a space in between.
 ```python
 string = str(sys.argv[1])
 Len = int(sys.argv[2])
