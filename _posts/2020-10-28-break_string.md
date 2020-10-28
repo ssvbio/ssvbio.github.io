@@ -12,10 +12,10 @@ would like to put in a data fram for further manipulation. Here is an
 example with radom letters of DNA code (ATCG).
 
 ``` r
-print ("sting is ATCGATCGGGTTTAC")
+print ("string is ATCGATCGGGTTTAC")
 ```
 
-[1] "sting is ATCGATCGGGTTTAC"
+[1] "string is ATCGATCGGGTTTAC"
 
 Now the requirement is to print 6 letter strings, with one letter
 overlap. There are many ways to do it. Let us do it in a simple way.
