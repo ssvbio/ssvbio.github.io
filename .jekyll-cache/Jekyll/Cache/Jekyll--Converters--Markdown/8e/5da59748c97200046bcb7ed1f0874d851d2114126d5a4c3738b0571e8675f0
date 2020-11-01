@@ -1,11 +1,11 @@
-I"ù<p>Let us say you are asked to generate substrings of a large string with a defined length and overlap, following is python(3) script.</p>
+I"f<p>Let us say you are asked to generate substrings of a large string with a defined length and overlap, following is python(3) script.</p>
 
 <h4 id="import-the-libraries">Import the libraries</h4>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 </code></pre></div></div>
-<h4 id="user-input-input-string-as-string-second-argument-is-length-of-the-substring-and-third-argument-is-overlap-window-size-all-must-be-supplied-by-a-space-in-between">user input. Input string as string, second argument is length of the substring and third argument is overlap window size. All must be supplied by a space in between.</h4>
+<h4 id="collect-user-input-as-three-arguments-first-input-is-a-string-and-will-be-converted-as-string-second-argument-is-length-of-the-substring-and-third-argument-is-overlap-window-size-all-must-be-supplied-by-a-space-in-between">Collect user input, as three arguments. First input is a string and will be converted as string. Second argument is length of the substring and third argument is overlap window size. All must be supplied by a space in between.</h4>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">Len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 <span class="n">Wind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
@@ -32,4 +32,17 @@
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">python3</span> <span class="n">print_overlaps</span><span class="p">.</span><span class="n">py</span> <span class="n">mystring</span> <span class="mi">3</span> <span class="mi">2</span>
 </code></pre></div></div>
 <p><strong>Note</strong> Output is sorted alphabetically.</p>
+
+<h4 id="output-looks-like-below">Output looks like below:</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">print_overlaps</span><span class="p">.</span><span class="n">py</span> <span class="n">mystring</span> <span class="mi">4</span> <span class="mi">2</span>
+
+<span class="n">myst</span> 	 <span class="mi">1</span>
+<span class="n">ring</span> 	 <span class="mi">1</span>
+<span class="n">stri</span> 	 <span class="mi">1</span>
+</code></pre></div></div>
+<h4 id="another-example">another example:</h4>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span> <span class="n">python3</span> <span class="n">print_overlaps</span><span class="p">.</span><span class="n">py</span> <span class="n">mystring</span> <span class="mi">5</span> <span class="mi">3</span>
+<span class="n">mystr</span> 	 <span class="mi">1</span>
+<span class="n">strin</span> 	 <span class="mi">1</span>
+</code></pre></div></div>
 :ET
