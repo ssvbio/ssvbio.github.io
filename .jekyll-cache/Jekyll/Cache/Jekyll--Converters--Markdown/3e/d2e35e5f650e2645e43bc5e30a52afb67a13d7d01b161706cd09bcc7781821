@@ -1,4 +1,4 @@
-I"·<p>Despite itâ€™s 2020, we still have issues in installing standard software such as vep. On Focal (ubuntu distribution), do the following</p>
+I"È<p>Despite itâ€™s 2020, we still have issues in installing standard software such as vep. On Focal (ubuntu distribution), do the following</p>
 
 <ol>
   <li>Install following libraries
@@ -15,11 +15,11 @@
   </li>
   <li>Now clone the vep repo
     <ol>
-      <li>git clone https://github.com/Ensembl/ensembl-vep.git</li>
+      <li>Clone the vep repo (git clone https://github.com/Ensembl/ensembl-vep.git)</li>
       <li>Go to ensembl-vep repo</li>
       <li>You should see htslib directory. you can keep it if you are okay with it. I did step 4 and 5</li>
       <li>Delete the htslib</li>
-      <li>git clone the htslib (git clone https://github.com/samtools/htslib.git)</li>
+      <li>Clone the htslib (git clone https://github.com/samtools/htslib.git)</li>
     </ol>
   </li>
   <li>Now execute the command
