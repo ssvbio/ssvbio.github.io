@@ -30,13 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    12 November 2020
+    17 December 2020
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
         
-          <li><a href="/expand_rows_awk">Expand rows using awk</a></li>
+          <li><a href="/Fasta_headers_and_back_referencing">Manipulate fasta headers using back referencing</a></li>
         
           <li><a href="/install_vep_focal">How to install VEP on focal</a></li>
         
@@ -61,59 +61,47 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/expand_rows_awk">Nov 12, 2020 - Expand rows using awk</a></h1>
+                <h1><a href="/Fasta_headers_and_back_referencing">Dec 17, 2020 - Manipulate fasta headers using back referencing</a></h1>
             <div class="post-content">
-            <p>Several times, we tend to collapse and expand rows based on group information. In this note, let us learn to expand the collapsed rows. Following is an example input:</p>
+            <p>Biologists manipulate fasta headers for several reasons. Some of them are easy and some of them are complex. One of the user requirements to edit fasta headers and it involved back referencing. I did it using seqkit and sed.  Following is an example input:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input:
 
-a	1,2,3
-b	horse
+<span class="o">&gt;</span>16:23107820-23108019<span class="o">(</span>+<span class="o">)</span>
+GTAC
+<span class="o">&gt;</span>14:54909471-54909670<span class="o">(</span>-<span class="o">)</span>
+GTAA
+<span class="o">&gt;</span>7:127020805-127021004<span class="o">(</span>-<span class="o">)</span>
+GTAGG
+<span class="o">&gt;</span>X:20848619-20848818<span class="o">(</span>+<span class="o">)</span>
+GTGAG
+<span class="o">&gt;</span>1:75547398-75547597<span class="o">(</span>+<span class="o">)</span>
+GTGGG
 </code></pre></div></div>
-<p>Now we need to expand the rows in a single row for each value in second column</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">awk</span>  <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span>  <span class="s1">'{split($2,a,","); for (i in a) {print $1,a[i]}}'</span> test.txt
+<p>Now the requirement is to extract the coordinates from fasta headers including strand information.</p>
 
-a	1
-a	2
-a	3
-b	horse
-b	donkey
-b	dog
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>with <span class="nb">sed</span>:
+
+<span class="nv">$ </span><span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'/^&gt;/ s/^&gt;\(\w\+\)\W\(\w\+\)\W\(\w\+\).\([+,-]\)./\1\t\2\t\3\t\4/p'</span> test.txt
+
+16      23107820        23108019        +
+14      54909471        54909670        -
+7       127020805       127021004       -
+X       20848619        20848818        +
+1       75547398        75547597        +
 </code></pre></div></div>
-<p>Trick is in splitting the second column, store the values in an array and then print the values for each element in the array. Let us look at few real life examples.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input:
-<span class="nv">$cat</span> test.txt 
+<p>NOw let us do the same thing using seqkit.</p>
 
-41867799,41867388,41866990  chr17:41866927-41867904
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>seqkit replace <span class="nt">-ip</span> <span class="s1">'(\w+):(\w*)-(\w*).([+,-]).'</span> <span class="nt">-r</span> <span class="s1">'$1 $2 $3 $4'</span> test.txt | seqkit <span class="nb">seq</span> <span class="nt">-n</span>
+
+16 23107820 23108019 +
+14 54909471 54909670 -
+7 127020805 127021004 -
+X 20848619 20848818 +
+1 75547398 75547597 +
 </code></pre></div></div>
-<p>awk code and output</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$awk</span> <span class="nt">-v</span> <span class="nv">FS</span><span class="o">=</span><span class="s1">'[-:\t]'</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span>  <span class="s1">' NR != 1 {split($1,a,","); for (i in a) {print $2,$3"-"a[i],$3,a[i]}}'</span> test.txt
-
-chr17   41866927-41867799   41866927    41867799
-chr17   41866927-41867388   41866927    41867388
-chr17   41866927-41866990   41866927    41866990
-</code></pre></div></div>
-<p>Another example</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input:
-
-ID                 GENE              Qvalue
-T0100007038  NECAP2            1.17
-T0100007063  FAM231C<span class="p">;</span> FAM231A  <span class="nt">-1</span>.04
-T0100007206  CDA               <span class="nt">-1</span>.15
-T0100007207  PINK1<span class="p">;</span> MIR6084    1.1
-</code></pre></div></div>
-<p>Code and output</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span> <span class="s1">'{split($2,a,";"); for(i in a)print $1,a[i],$3}'</span> test.txt 
-
-ID  GENE     Qvalue
-T0100007038   NECAP2   1.17
-T0100007063   FAM231C      <span class="nt">-1</span>.04
-T0100007063   FAM231A      <span class="nt">-1</span>.04
-T0100007206   CDA      <span class="nt">-1</span>.15
-T0100007207   PINK1    1.1
-T0100007207   MIR6084      1.1
-</code></pre></div></div>
+<p>Good and interesting thing is that seqkit supports back referencing.  This can be used in multiple ways. In this case to split the header. Unfortunately, it doesn’t support characters such <strong>‘\t’</strong> (tab) in replacement.</p>
 
             </div>
           </div>

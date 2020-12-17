@@ -1,32 +1,19 @@
-I"¼<p>Several times, we tend to collapse and expand rows based on group information. In this note, let us learn to expand the collapsed rows. Following is an example input:</p>
+I"k<p>Biologists manipulate fasta headers for several reasons. Some of them are easy and some of them are complex. One of the user requirements to edit fasta headers and it involved back referencing. I did it using seqkit and sed.  Following is an example input:</p>
 
-<table>
-  <tbody>
-    <tr>
-      <td>a</td>
-      <td>1,2,3</td>
-    </tr>
-    <tr>
-      <td>b</td>
-      <td>horse,donkey,dog</td>
-    </tr>
-  </tbody>
-</table>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>input:
 
-<table>
-  <tbody>
-    <tr>
-      <td>a</td>
-      <td>1,2,3</td>
-    </tr>
-    <tr>
-      <td>with multiple</td>
-      <td>lines</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Now we need to expand the rows in a single row for each value in second column</p>
+<span class="o">&gt;</span>16:23107820-23108019<span class="o">(</span>+<span class="o">)</span>
+GTAC
+<span class="o">&gt;</span>14:54909471-54909670<span class="o">(</span>-<span class="o">)</span>
+GTAA
+<span class="o">&gt;</span>7:127020805-127021004<span class="o">(</span>-<span class="o">)</span>
+GTAGG
+<span class="o">&gt;</span>X:20848619-20848818<span class="o">(</span>+<span class="o">)</span>
+GTGAG
+<span class="o">&gt;</span>1:75547398-75547597<span class="o">(</span>+<span class="o">)</span>
+GTGGG
+</code></pre></div></div>
+<p>Now the requirement is to take we need to expand the rows in a single row for each value in second column</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">awk</span>  <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span>  <span class="s1">'{split($2,a,","); for (i in a) {print $1,a[i]}}'</span> test.txt
 
 a	1
