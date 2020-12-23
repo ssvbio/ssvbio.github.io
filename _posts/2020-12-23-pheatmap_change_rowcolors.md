@@ -35,9 +35,7 @@ Now that we have created status, let us give conditional colors. If the regulati
 data$colors=ifelse(data$status=="up","green","red")
 ```
 
-Remember the data is in first 10 columns (10 samples) only. So let us create heatmap from first 10 columns
-
-Now that we have looked at, let us store the heatmap as an object
+Remember the data is in first 10 columns (10 samples) only. So let us create heatmap from first 10 columns. Now that we have looked at heatmap, let us store the heatmap as an object
 
 ``` r
 e=pheatmap(data[,1:10])
@@ -45,7 +43,7 @@ e=pheatmap(data[,1:10])
 
 ![](/images/20201223_unnamed-chunk-5-1.png)<!-- --> 
 
-Now we need to define the colors. Unfortunately, we can’t take the colors as such as there is grouping while drawing heatmap and grouping disturbs order of the data frame. Hence we need to take the genes and their order of appearance from heatmap object, rearrange the data frame as per heatmap and take colors from the rearranged data frame. Final object would be stored in cols, contains colors and exactly in the same order as genes in heatmap object.
+Now we need to define the colors. Unfortunately, we can’t take the colors as such as there is grouping while drawing heatmap and grouping disturbs order of the data frame. Hence we need to take the genes and their order of appearance from heatmap object, rearrange the data frame as per heatmap and take colors from the rearranged data frame. Final object would be stored in cols, contains colors and exactly in the same order as genes in heatmap object. We need to identify the grob in which row names are located in heatmap object. In this case, it is located in grob 5. One can get it in gtable of the heatmap object.
 
 ``` r
 cols=data[order(match(rownames(data), e$gtable$grobs[[5]]$label)), ]$colors
