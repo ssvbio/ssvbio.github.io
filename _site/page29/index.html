@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    21 December 2020
+    23 December 2020
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/pheatmap_change_rowcolors">Change row font color in pheatmap conditionally</a></li>
         
           <li><a href="/ggplot">A small tutorial on ggplot2</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/Fasta_headers_and_back_referencing">Manipulate fasta headers using back referencing</a></li>
         
           <li><a href="/install_vep_focal">How to install VEP on focal</a></li>
-        
-          <li><a href="/print_overlaps_python">Generate substrings in python</a></li>
         
     </ul>
   </div>
@@ -61,132 +61,67 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/ggplot">Dec 21, 2020 - A small tutorial on ggplot2</a></h1>
+                <h1><a href="/pheatmap_change_rowcolors">Dec 23, 2020 - Change row font color in pheatmap conditionally</a></h1>
             <div class="post-content">
-            <p>Ggplot despite being one of the best graphing systems in R, many newbies (esp biologists) struggle to understand the syntax. Here is a small tutorial for those who deal with gene expression data. Example data can be downloded from <a href="https://docs.google.com/document/d/12nZ2qukpVmurKdU5BQIkyLJNBOCmctkILvWuwVyBLA8/edit?usp=sharing">here</a>.</p>
+            <p>Most of the gene expression studies result in heatmaps for publications, presentations and posters. There are several tools for generating heatmaps. Most of the tools expect a matrix (also called an expression matrix). Matrix will have values (integers) for each gene in rows i.e genes are present in rows and corresponding expression values are presented against them row wise and corresponding sample name would be in columns. In summary, genes in rows, samples in columns and corresponding values against appropriate gene and sample. Think of it as point drawn against x, y coordinates.</p>
 
-<p>Load libraries</p>
+<p>Now one of the easiest heatmap generating library in R is <a href="https://github.com/raivokolde/pheatmap">pheatmap</a>. However, once we get to heatmpap, we would need more functions and this where <a href="https://github.com/jokergoo/ComplexHeatmap">complexheatmap</a> shines. For quick heatmap, pheatmap shines and for complex heatmaps, complexheatmap shines. One of the user requirements to change the font color as per cutoff. In this case, user wants to highlight genes (row names) with color (green and red) indicating regulation (up and down). Let us do this.</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
-</span><span class="n">library</span><span class="p">(</span><span class="n">ggrepel</span><span class="p">)</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Load libraries</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">pheatmap</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Load example data</p>
+<p>Now let us simulate some expression data with 10 genes, 10 samples and store it as data frame</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="o">=</span><span class="n">read.csv</span><span class="p">(</span><span class="s2">"ggplot_test.txt"</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">,</span><span class="w"> </span><span class="n">strip.white</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">T</span><span class="p">,</span><span class="w"> </span><span class="n">stringsAsFactors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="n">rnorm</span><span class="p">(</span><span class="m">10</span><span class="p">))</span><span class="w">
+</span><span class="n">rownames</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste0</span><span class="p">(</span><span class="s2">"Gene_"</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span><span class="w">
+</span><span class="n">colnames</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"Sample"</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">ncol</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span><span class="w">
+</span><span class="n">data</span><span class="o">=</span><span class="n">data.frame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Remove NA</p>
+<p>In general, upregulation and downregulation is based on fold change values and they come after the analysis. Since this is a simulated data, let us add a column, with up and down statuses for the sake of simplicity. Now data frame has expression values and regulation status (up or down)</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">complete.cases</span><span class="p">(</span><span class="n">df</span><span class="p">),]</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="o">$</span><span class="n">status</span><span class="o">=</span><span class="nf">rep</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s2">"up"</span><span class="p">,</span><span class="s2">"down"</span><span class="p">),</span><span class="w"> </span><span class="n">each</span><span class="o">=</span><span class="nf">dim</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="o">/</span><span class="m">2</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Order the data frame by adjusted p-values</p>
+<p>Now that we have created status, let us give conditional colors. If the regulation is up, it is represented by green color, and red color represents down regulation.</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">padj</span><span class="p">),]</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="o">$</span><span class="n">colors</span><span class="o">=</span><span class="n">ifelse</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">status</span><span class="o">==</span><span class="s2">"up"</span><span class="p">,</span><span class="s2">"green"</span><span class="p">,</span><span class="s2">"red"</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Let us plot Example Volcano Plot and give all points brown color</p>
+<p>Remember the data is in first 10 columns (10 samples) only. So let us create heatmap from first 10 columns</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">I</span><span class="p">(</span><span class="s2">"brown"</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="m">0.5</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">ggtitle</span><span class="p">(</span><span class="s1">'Example Volcano Plot'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'-Log'</span><span class="p">[</span><span class="m">10</span><span class="p">]</span><span class="o">*</span><span class="s1">' P'</span><span class="p">[</span><span class="n">adj</span><span class="p">]),</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Log'</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="o">*</span><span class="s1">' fold change'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span><span class="w"> </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rel</span><span class="p">(</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w">
+<p>Now that we have looked at, let us store the heatmap as an object</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="o">=</span><span class="n">pheatmap</span><span class="p">(</span><span class="n">data</span><span class="p">[,</span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">])</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/images/21122020_unnamed-chunk-5-1.png" alt="" /><!-- --></p>
+<p><img src="/images/20201223_unnamed-chunk-5-1.png" alt="" /><!-- --></p>
 
-<p>Now let us color highlight genes of statistical siginficance (padj&lt; 0.01). Let us highlight the genes of statistical significance with brown and non-significant grey</p>
+<p>Now we need to define the colors. Unfortunately, we can’t take the colors as such as there is grouping while drawing heatmap and grouping disturbs order of the data frame. Hence we need to take the genes and their order of appearance from heatmap object, rearrange the data frame as per heatmap and take colors from the rearranged data frame. Final object would be stored in cols, contains colors and exactly in the same order as genes in heatmap object.</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">I</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">padj</span><span class="o">&gt;</span><span class="m">0.01</span><span class="p">,</span><span class="s2">"grey"</span><span class="p">,</span><span class="s2">"brown"</span><span class="p">))))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="m">0.4</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">ggtitle</span><span class="p">(</span><span class="s1">'Example Volcano Plot'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'-Log'</span><span class="p">[</span><span class="m">10</span><span class="p">]</span><span class="o">*</span><span class="s1">' P'</span><span class="p">[</span><span class="n">adj</span><span class="p">]),</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Log'</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="o">*</span><span class="s1">' fold change'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span><span class="w"> </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rel</span><span class="p">(</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cols</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="w"> </span><span class="n">e</span><span class="o">$</span><span class="n">gtable</span><span class="o">$</span><span class="n">grobs</span><span class="p">[[</span><span class="m">5</span><span class="p">]]</span><span class="o">$</span><span class="n">label</span><span class="p">)),</span><span class="w"> </span><span class="p">]</span><span class="o">$</span><span class="n">colors</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="images/21122020_unnamed-chunk-6-1.png" alt="" /><!-- --></p>
+<p>Now let us assign the colors to graph object</p>
 
-<p>Now let us add labels to the top 10 statisticaly signficant genes</p>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-    </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">padj</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0.01</span><span class="p">,</span><span class="w"> </span><span class="s2">"grey"</span><span class="p">,</span><span class="w"> </span><span class="s2">"brown"</span><span class="p">))</span><span class="w">
-</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.4</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">ggtitle</span><span class="p">(</span><span class="s1">'Example Volcano Plot'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'-Log'</span><span class="p">[</span><span class="m">10</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' P'</span><span class="p">[</span><span class="n">adj</span><span class="p">]),</span><span class="w">
-         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Log'</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' fold change'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span><span class="p">,</span><span class="w">
-          </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rel</span><span class="p">(</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_text_repel</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-        </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Gene.names</span><span class="w">
-    </span><span class="p">))</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="o">$</span><span class="n">gtable</span><span class="o">$</span><span class="n">grobs</span><span class="p">[[</span><span class="m">5</span><span class="p">]]</span><span class="o">$</span><span class="n">gp</span><span class="o">=</span><span class="n">gpar</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="images/21122020_unnamed-chunk-7-1.png" alt="" /><!-- --></p>
+<p>Now redraw the heatmap</p>
 
-<p>Now let us color upregulated genes with green color, and downregulated genes with red color, genes that do not show any color change as grey color. Hightlight top 10 regulated (up and down) genes with text</p>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-    </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">FoldChange_log2</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"darkgreen"</span><span class="p">,</span><span class="w"> </span><span class="n">ifelse</span><span class="w"> </span><span class="p">(</span><span class="n">FoldChange_log2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"grey"</span><span class="p">)))))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.4</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">ggtitle</span><span class="p">(</span><span class="s1">'Example Volcano Plot'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'-Log'</span><span class="p">[</span><span class="m">10</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' P'</span><span class="p">[</span><span class="n">adj</span><span class="p">]),</span><span class="w">
-         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Log'</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' fold change'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span><span class="p">,</span><span class="w">
-          </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rel</span><span class="p">(</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_text_repel</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-        </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Gene.names</span><span class="w">
-    </span><span class="p">))</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="images/21122020_unnamed-chunk-8-1.png" alt="" /><!-- --></p>
-
-<p>Now let us draw vertical and horizontal lines at p-value and fold change
-cut offs. P-value cut off 0.01 and fold change change cut off 1 (log2
-fold change 1 is equivalent to 2 fold change)</p>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-    </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-    </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-    </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">I</span><span class="p">(</span><span class="n">ifelse</span><span class="p">(</span><span class="n">FoldChange_log2</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"darkgreen"</span><span class="p">,</span><span class="w"> </span><span class="n">ifelse</span><span class="w"> </span><span class="p">(</span><span class="n">FoldChange_log2</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="s2">"red"</span><span class="p">,</span><span class="s2">"grey"</span><span class="p">)))))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.4</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">ggtitle</span><span class="p">(</span><span class="s1">'Example Volcano Plot'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">labs</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'-Log'</span><span class="p">[</span><span class="m">10</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' P'</span><span class="p">[</span><span class="n">adj</span><span class="p">]),</span><span class="w">
-         </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">expression</span><span class="p">(</span><span class="s1">'Log'</span><span class="p">[</span><span class="m">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">' fold change'</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">theme</span><span class="p">(</span><span class="n">legend.position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span><span class="p">,</span><span class="w">
-          </span><span class="n">plot.title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element_text</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rel</span><span class="p">(</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="n">hjust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.5</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_text_repel</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="w">
-        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FoldChange_log2</span><span class="p">,</span><span class="w">
-        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="n">padj</span><span class="p">),</span><span class="w">
-        </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Gene.names</span><span class="w">
-    </span><span class="p">))</span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_hline</span><span class="p">(</span><span class="n">yintercept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">log10</span><span class="p">(</span><span class="m">0.01</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="o">=</span><span class="s2">"dashed"</span><span class="p">)</span><span class="o">+</span><span class="w">
-    </span><span class="n">geom_vline</span><span class="p">(</span><span class="n">xintercept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">-1</span><span class="p">,</span><span class="m">1</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="n">linetype</span><span class="o">=</span><span class="s2">"dashed"</span><span class="p">)</span><span class="w">
-</span></code></pre></div></div>
-
-<p><img src="images/21122020_unnamed-chunk-9-1.png" alt="" /><!-- --></p>
+<p><img src="/images/20201223_unnamed-chunk-8-1.png" alt="" /><!-- --></p>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/Serial-and-parallel-writing-of-fasta-files-in-R" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/ggplot" class="previous">Older Post</a>
               
           </div>
         </div>
