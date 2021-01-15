@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    23 December 2020
+    16 January 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/dplyr_column_ops">Column operations using dplyr and tidyr</a></li>
         
           <li><a href="/pheatmap_change_rowcolors">Change row font color in pheatmap conditionally</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/Serial-and-parallel-writing-of-fasta-files-in-R">Serial and Parallel writing of Individual fasta files in R</a></li>
         
           <li><a href="/Fasta_headers_and_back_referencing">Manipulate fasta headers using back referencing</a></li>
-        
-          <li><a href="/install_vep_focal">How to install VEP on focal</a></li>
         
     </ul>
   </div>
@@ -61,65 +61,166 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/pheatmap_change_rowcolors">Dec 23, 2020 - Change row font color in pheatmap conditionally</a></h1>
+                <h1><a href="/dplyr_column_ops">Jan 16, 2021 - Column operations using dplyr and tidyr</a></h1>
             <div class="post-content">
-            <p>Most of the gene expression studies result in heatmaps for publications, presentations and posters. There are several tools for generating heatmaps. Most of the tools expect a matrix (also called an expression matrix). Matrix will have values (integers) for each gene in rows i.e genes are present in rows and corresponding expression values are presented against them row wise and corresponding sample name would be in columns. In summary, genes in rows, samples in columns and corresponding values against appropriate gene and sample. Think of it as point drawn against x, y coordinates.</p>
+            <p>Data operations in R can be done in so many ways that it’s confusing for newbies. This note denotes simple operations using dplyr (and other packages from tidyverse). Let us do this using standard datasets available within R.</p>
 
-<p>Now one of the easiest heatmap generating library in R is <a href="https://github.com/raivokolde/pheatmap">pheatmap</a>. However, once we get to heatmpap, we would need more functions and this where <a href="https://github.com/jokergoo/ComplexHeatmap">complexheatmap</a> shines. For quick heatmap, pheatmap shines and for complex heatmaps, complexheatmap shines. One of the user requirements to change the font color as per cutoff. In this case, user wants to highlight genes (row names) with color (green and red) indicating regulation (up and down). Let us do this.</p>
+<h4 id="load-libraries">Load libraries</h4>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Load libraries</span><span class="w">
-</span><span class="n">library</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="w">
-</span><span class="n">library</span><span class="p">(</span><span class="n">pheatmap</span><span class="p">)</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">suppressPackageStartupMessages</span><span class="p">(</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">))</span><span class="w">
+</span><span class="n">suppressPackageStartupMessages</span><span class="p">(</span><span class="n">library</span><span class="p">(</span><span class="n">tidyr</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p>Let us do some column-wise basic statistics.</p>
+
+<h4 id="find-maximum-value-in-each-column">Find maximum value in each column</h4>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+    </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="n">max</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Now let us simulate some expression data with 10 genes, 10 samples and store it as data frame</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          7.9         4.4          6.9         2.5
+</code></pre></div></div>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">replicate</span><span class="p">(</span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="n">rnorm</span><span class="p">(</span><span class="m">10</span><span class="p">))</span><span class="w">
-</span><span class="n">rownames</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste0</span><span class="p">(</span><span class="s2">"Gene_"</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span><span class="w">
-</span><span class="n">colnames</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"Sample"</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">ncol</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span><span class="w">
-</span><span class="n">data</span><span class="o">=</span><span class="n">data.frame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w">
+<h4 id="find-maximum-value-in-each-group">Find maximum value in each group</h4>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+    </span><span class="n">group_by</span><span class="p">(</span><span class="n">Species</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+    </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="n">max</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p>In general, upregulation and downregulation is based on fold change values and they come after the analysis. Since this is a simulated data, let us add a column, with up and down statuses for the sake of simplicity. Now data frame has expression values and regulation status (up or down)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## `summarise()` ungrouping output (override with `.groups` argument)
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="o">$</span><span class="n">status</span><span class="o">=</span><span class="nf">rep</span><span class="p">(</span><span class="nf">c</span><span class="p">(</span><span class="s2">"up"</span><span class="p">,</span><span class="s2">"down"</span><span class="p">),</span><span class="w"> </span><span class="n">each</span><span class="o">=</span><span class="nf">dim</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="m">1</span><span class="p">]</span><span class="o">/</span><span class="m">2</span><span class="p">)</span><span class="w">
+## # A tibble: 3 x 5
+##   Species    Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   &lt;fct&gt;             &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
+## 1 setosa              5.8         4.4          1.9         0.6
+## 2 versicolor          7           3.4          5.1         1.8
+## 3 virginica           7.9         3.8          6.9         2.5
+</code></pre></div></div>
+
+<h4 id="find-minimum-and-maximum-value-within-each-column">Find minimum and maximum value within each column</h4>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max</span><span class="p">)))</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Now that we have created status, let us give conditional colors. If the regulation is up, it is represented by green color, and red color represents down regulation.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   Sepal.Length_min Sepal.Length_max Sepal.Width_min Sepal.Width_max
+## 1              4.3              7.9               2             4.4
+##   Petal.Length_min Petal.Length_max Petal.Width_min Petal.Width_max
+## 1                1              6.9             0.1             2.5
+</code></pre></div></div>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="o">$</span><span class="n">colors</span><span class="o">=</span><span class="n">ifelse</span><span class="p">(</span><span class="n">data</span><span class="o">$</span><span class="n">status</span><span class="o">==</span><span class="s2">"up"</span><span class="p">,</span><span class="s2">"green"</span><span class="p">,</span><span class="s2">"red"</span><span class="p">)</span><span class="w">
+<p>Now as you see, the table has grown horizontally with two functions(max and min). Imagine having 5 functions and multiple groups. Let us format this to a better table.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="w"> </span><span class="n">min</span><span class="o">=</span><span class="n">min</span><span class="p">,</span><span class="n">max</span><span class="o">=</span><span class="n">max</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_longer</span><span class="p">(</span><span class="w">
+        </span><span class="n">everything</span><span class="p">(),</span><span class="w">
+        </span><span class="n">names_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="s2">"stat"</span><span class="p">),</span><span class="w">
+        </span><span class="n">names_sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"_"</span><span class="p">,</span><span class="w">
+        </span><span class="n">values_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"measurement"</span><span class="w">
+    </span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_wider</span><span class="p">(</span><span class="n">names_from</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="n">values_from</span><span class="o">=</span><span class="s2">"measurement"</span><span class="p">)</span><span class="w"> 
 </span></code></pre></div></div>
 
-<p>Remember the data is in first 10 columns (10 samples) only. So let us create heatmap from first 10 columns. Now that we have looked at heatmap, let us store the heatmap as an object</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 2 x 5
+##   stat  Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
+## 1 min            4.3         2            1           0.1
+## 2 max            7.9         4.4          6.9         2.5
+</code></pre></div></div>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="o">=</span><span class="n">pheatmap</span><span class="p">(</span><span class="n">data</span><span class="p">[,</span><span class="m">1</span><span class="o">:</span><span class="m">10</span><span class="p">])</span><span class="w">
+<p>There is easier way to do this outside dplyr.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">suppressPackageStartupMessages</span><span class="p">(</span><span class="n">library</span><span class="p">(</span><span class="n">Rfast</span><span class="p">))</span><span class="w">
+</span><span class="n">data.frame</span><span class="p">(</span><span class="n">apply</span><span class="p">(</span><span class="n">iris</span><span class="p">[,</span><span class="m">-5</span><span class="p">],</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">colMinsMaxs</span><span class="p">),</span><span class="w"> </span><span class="n">row.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Min"</span><span class="p">,</span><span class="s2">"Max"</span><span class="p">))</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/images/20201223_unnamed-chunk-5-1.png" alt="" /><!-- --></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##     Sepal.Length Sepal.Width Petal.Length Petal.Width
+## Min          4.3         2.0          1.0         0.1
+## Max          7.9         4.4          6.9         2.5
+</code></pre></div></div>
 
-<p>Now we need to define the colors. Unfortunately, we can’t take the colors as such as there is grouping while drawing heatmap and grouping disturbs order of the data frame. Hence we need to take the genes and their order of appearance from heatmap object, rearrange the data frame as per heatmap and take colors from the rearranged data frame. Final object would be stored in cols, contains colors and exactly in the same order as genes in heatmap object. We need to identify the grob in which row names are located in heatmap object. In this case, it is located in grob 5. One can get it in gtable of the heatmap object.</p>
+<p>with Rfast package, it might be easier, but not extensible. For eg, let us say you want mean, median and sd. You cannot get all of them in the same function. However, dplyr code allows to include as many functions as you need and format as per your needs. Following is the example, for 5 functions (overall):</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cols</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="n">rownames</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="w"> </span><span class="n">e</span><span class="o">$</span><span class="n">gtable</span><span class="o">$</span><span class="n">grobs</span><span class="p">[[</span><span class="m">5</span><span class="p">]]</span><span class="o">$</span><span class="n">label</span><span class="p">)),</span><span class="w"> </span><span class="p">]</span><span class="o">$</span><span class="n">colors</span><span class="w">
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="w"> </span><span class="n">Min</span><span class="o">=</span><span class="n">min</span><span class="p">,</span><span class="n">Max</span><span class="o">=</span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="n">Mean</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="n">Median</span><span class="o">=</span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">SD</span><span class="o">=</span><span class="n">sd</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_longer</span><span class="p">(</span><span class="w">
+        </span><span class="n">everything</span><span class="p">(),</span><span class="w">
+        </span><span class="n">names_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="s2">"stat"</span><span class="p">),</span><span class="w">
+        </span><span class="n">names_sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"_"</span><span class="p">,</span><span class="w">
+        </span><span class="n">values_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"measurement"</span><span class="w">
+    </span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_wider</span><span class="p">(</span><span class="n">names_from</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="n">values_from</span><span class="o">=</span><span class="s2">"measurement"</span><span class="p">)</span><span class="w"> 
 </span></code></pre></div></div>
 
-<p>Now let us assign the colors to graph object</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 5 x 5
+##   stat   Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   &lt;chr&gt;         &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
+## 1 Min           4.3         2             1          0.1  
+## 2 Max           7.9         4.4           6.9        2.5  
+## 3 Mean          5.84        3.06          3.76       1.20 
+## 4 Median        5.8         3             4.35       1.3  
+## 5 SD            0.828       0.436         1.77       0.762
+</code></pre></div></div>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="o">$</span><span class="n">gtable</span><span class="o">$</span><span class="n">grobs</span><span class="p">[[</span><span class="m">5</span><span class="p">]]</span><span class="o">$</span><span class="n">gp</span><span class="o">=</span><span class="n">gpar</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span><span class="w">
+<h4 id="find-minimum-and-maximum-value-within-each-column-for-each-plant-species">Find minimum and maximum value within each column, for each plant species:</h4>
+
+<p>Now let us find minimum and maximum in each group (Species)</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">Species</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max</span><span class="p">)))</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Now redraw the heatmap</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## `summarise()` ungrouping output (override with `.groups` argument)
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">e</span><span class="w">
+## # A tibble: 3 x 9
+##   Species Sepal.Length_min Sepal.Length_max Sepal.Width_min Sepal.Width_max
+##   &lt;fct&gt;              &lt;dbl&gt;            &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
+## 1 setosa               4.3              5.8             2.3             4.4
+## 2 versic…              4.9              7               2               3.4
+## 3 virgin…              4.9              7.9             2.2             3.8
+## # … with 4 more variables: Petal.Length_min &lt;dbl&gt;, Petal.Length_max &lt;dbl&gt;,
+## #   Petal.Width_min &lt;dbl&gt;, Petal.Width_max &lt;dbl&gt;
+</code></pre></div></div>
+
+<p>Let us format this table to a meaningful table as below:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">iris</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">group_by</span><span class="p">(</span><span class="n">Species</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">summarise</span><span class="p">(</span><span class="n">across</span><span class="p">(</span><span class="n">where</span><span class="p">(</span><span class="n">is.numeric</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">max</span><span class="o">=</span><span class="n">max</span><span class="p">,</span><span class="w"> </span><span class="n">min</span><span class="o">=</span><span class="n">min</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_longer</span><span class="p">(</span><span class="w">
+        </span><span class="o">-</span><span class="n">Species</span><span class="p">,</span><span class="w">
+        </span><span class="n">names_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="s2">"stat"</span><span class="p">),</span><span class="w">
+        </span><span class="n">names_sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"_"</span><span class="p">,</span><span class="w">
+        </span><span class="n">values_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"measurement"</span><span class="w">
+    </span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">pivot_wider</span><span class="p">(</span><span class="n">names_from</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"part"</span><span class="p">,</span><span class="w"> </span><span class="n">values_from</span><span class="o">=</span><span class="s2">"measurement"</span><span class="p">)</span><span class="w">
 </span></code></pre></div></div>
 
-<p><img src="/images/20201223_unnamed-chunk-8-1.png" alt="" /><!-- --></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## `summarise()` ungrouping output (override with `.groups` argument)
+
+## # A tibble: 6 x 6
+##   Species    stat  Sepal.Length Sepal.Width Petal.Length Petal.Width
+##   &lt;fct&gt;      &lt;chr&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;
+## 1 setosa     max            5.8         4.4          1.9         0.6
+## 2 setosa     min            4.3         2.3          1           0.1
+## 3 versicolor max            7           3.4          5.1         1.8
+## 4 versicolor min            4.9         2            3           1  
+## 5 virginica  max            7.9         3.8          6.9         2.5
+## 6 virginica  min            4.9         2.2          4.5         1.4
+</code></pre></div></div>
+
+<p>We can further beautify this table with kable package.</p>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/ggplot" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/pheatmap_change_rowcolors" class="previous">Older Post</a>
               
           </div>
         </div>
@@ -131,7 +232,7 @@
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span12 footer navbar-inverse navbar-fixed-bottom">
-            <p class="copyright">&copy;2020 Biologist's bioinformatics notes. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            <p class="copyright">&copy;2021 Biologist's bioinformatics notes. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
             under
             <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
         </div>
