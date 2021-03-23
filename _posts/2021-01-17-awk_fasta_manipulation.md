@@ -1,6 +1,6 @@
 ---
 title: "Manipulate fasta file with AWK"
-tags: [awk fasta]
+tags: awk, fasta
 layout: post
 ---
 There were two requests to manipulate a fasta with awk.

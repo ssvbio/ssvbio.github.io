@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    17 January 2021
+    23 March 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/break_multifasta_with_awk">Break multifasta into multiple files with awk</a></li>
         
           <li><a href="/awk_fasta_manipulation">Manipulate fasta file with AWK</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/pheatmap_change_rowcolors">Change row font color in pheatmap conditionally</a></li>
         
           <li><a href="/ggplot">A small tutorial on ggplot2</a></li>
-        
-          <li><a href="/Serial-and-parallel-writing-of-fasta-files-in-R">Serial and Parallel writing of Individual fasta files in R</a></li>
         
     </ul>
   </div>
@@ -61,51 +61,37 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/awk_fasta_manipulation">Jan 17, 2021 - Manipulate fasta file with AWK</a></h1>
+                <h1><a href="/break_multifasta_with_awk">Mar 23, 2021 - Break multifasta into multiple files with awk</a></h1>
             <div class="post-content">
-            <p>There were two requests to manipulate a fasta with awk.</p>
-<ol>
-  <li>Break a sequnece in two halves. Print second half before first half</li>
-  <li>Extract middle 150bp from each sequence</li>
-</ol>
+            <p>There are several ways to break a multifasta into small files. One of the requests I attempted is as follows:</p>
 
-<p>input fasta sequence:</p>
-<pre><code class="language-code">$ cat test.fa 
-&gt;read1
-CAGGTCTGGCTGGATGAAGGGCACGGCATAGGTCTGACCTGCCAGGGAGTGCTGCATCCTCACAGGAGTCATGGTGCTGCTGAAGATGTCTCCAGAGACCTTCTGCAGGTACTGCAGGGCATCCGCCATCTGCTGGACGGCCTCCTCTCGCCG
-&gt;read2
-CATCTGCGGAGGCTGCCGTGACGTAGGGTATGGGCCTAAATAGGCCATTGTGAGTCATGAGCTTGGTCTGTAGAGGCTGACTGGAGAAAGTTCTGGGCCTGGAGAGGCTGCCGGGAGGTAGGAGTGGTGAGGTCGACTTGAGAAAGTTCAGGGCCTGGAGAGAAGGCTGGGAGGCAGGAGCTGGGTCTAAAGAGGCCATTGTAACGATGGAGCTGTGCCTGTGGAGGCTGTTGTGAGGCAGTAGCCT
-&gt;read3
-TTGAGGTGGGAGGATCGCTTCAGCCTGGAAGGTTGAGGCTGCAGTCAGCTGCGATAGCACTACTACACTCCAGCCTTGGACAACAGAGGGAGACCTTTCGCTGTCACCCCTCTAGAATCCACGTATACGAAAATTCCAAATGTTAGTTGGGCATAGTGGCAAGCACCTGTAGTCTCAGCCACGTGGGAGG
+<pre><code class="language-code">$ cat test.fa                                                                                                                                                                           
+&gt;LI5896452.1 Liverpool 2 kg/dp/Kng
+ATGCTAG
+&gt;1582.LC madi kg 5/58/8
+GATGAT
 </code></pre>
-<p>Now let’s break this into two halves and print the second half before first half. Before any parsing, we need to flatten the fasta sequence i.e convert the multiline fasta sequence into single line sequence for each entry. We can do it with awk or with specialized tools such as seqkit.</p>
+<p>Requirement is to create individual files for each sequence and each file name should be the text till first space in the  headers (for eg. if the header is &gt;LI5896452.1 Liverpool 2 kg/dp/Kng, file name should be LI5896452.1.fa). Here is the solution in awk.</p>
 
-<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$</span> <span class="nx">seqkit</span> <span class="nx">seq</span> <span class="o">-</span><span class="nx">w</span> <span class="mi">0</span> <span class="nx">test</span><span class="p">.</span><span class="nx">fa</span>  <span class="o">|</span> <span class="nx">awk</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">OFS</span><span class="o">=</span><span class="s2">"\n"</span> <span class="err">'</span><span class="o">/^&gt;</span><span class="sr">/ {getline seq}{L=length</span><span class="se">(</span><span class="sr">seq</span><span class="se">)</span><span class="sr">; L2=int</span><span class="se">(</span><span class="sr">L/</span><span class="mi">2</span><span class="p">);</span> <span class="k">print</span> <span class="nv">$0</span><span class="p">,</span> <span class="nb">substr</span><span class="p">(</span><span class="nx">seq</span><span class="p">,</span><span class="nx">L2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="nb">substr</span><span class="p">(</span><span class="nx">seq</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nx">L2</span><span class="p">)</span> <span class="p">}</span><span class="err">'</span>
-<span class="o">&gt;</span><span class="nx">read1</span>
-<span class="nx">CTGCTGAAGATGTCTCCAGAGACCTTCTGCAGGTACTGCAGGGCATCCGCCATCTGCTGGACGGCCTCCTCTCGCCGCAGGTCTGGCTGGATGAAGGGCACGGCATAGGTCTGACCTGCCAGGGAGTGCTGCATCCTCACAGGAGTCATGGTG</span>
-<span class="o">&gt;</span><span class="nx">read2</span>
-<span class="nx">GTGGTGAGGTCGACTTGAGAAAGTTCAGGGCCTGGAGAGAAGGCTGGGAGGCAGGAGCTGGGTCTAAAGAGGCCATTGTAACGATGGAGCTGTGCCTGTGGAGGCTGTTGTGAGGCAGTAGCCTCATCTGCGGAGGCTGCCGTGACGTAGGGTATGGGCCTAAATAGGCCATTGTGAGTCATGAGCTTGGTCTGTAGAGGCTGACTGGAGAAAGTTCTGGGCCTGGAGAGGCTGCCGGGAGGTAGGA</span>
-<span class="o">&gt;</span><span class="nx">read3</span>
-<span class="nx">TTTCGCTGTCACCCCTCTAGAATCCACGTATACGAAAATTCCAAATGTTAGTTGGGCATAGTGGCAAGCACCTGTAGTCTCAGCCACGTGGGAGGTTGAGGTGGGAGGATCGCTTCAGCCTGGAAGGTTGAGGCTGCAGTCAGCTGCGATAGCACTACTACACTCCAGCCTTGGACAACAGAGGGAGACC</span>
-</code></pre></div></div>
+<pre><code class="language-code">$ awk -v OFS="\n" '/^&gt;/ {getline seq; print $0,seq &gt; substr($1,2)".fa"}' test.fa  
+</code></pre>
 
-<p>Now let’s extract only the middle 150 bp part from each sequence</p>
+<p>Now user should see two files and the output would be:</p>
+<pre><code class="language-code">$ cat 1582.LC.fa                                                                                                                                                                        
+&gt;1582.LC madi kg 5/58/8
+GATGAT
 
-<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$</span> <span class="nx">awk</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">OFS</span><span class="o">=</span><span class="s2">"\n"</span> <span class="err">'</span><span class="o">/^&gt;</span><span class="sr">/ {getline seq}{print $0,substr</span><span class="se">(</span><span class="sr">seq,length</span><span class="se">(</span><span class="sr">seq</span><span class="se">)</span><span class="sr">/</span><span class="mi">2</span><span class="o">-</span><span class="mi">75</span><span class="p">,</span><span class="mi">150</span><span class="p">)}</span><span class="err">'</span> <span class="nx">test</span><span class="p">.</span><span class="nx">fa</span>
-<span class="o">&gt;</span><span class="nx">read1</span>
-<span class="nx">CAGGTCTGGCTGGATGAAGGGCACGGCATAGGTCTGACCTGCCAGGGAGTGCTGCATCCTCACAGGAGTCATGGTGCTGCTGAAGATGTCTCCAGAGACCTTCTGCAGGTACTGCAGGGCATCCGCCATCTGCTGGACGGCCTCCTCTCG</span>
-<span class="o">&gt;</span><span class="nx">read2</span>
-<span class="nx">TTGTGAGTCATGAGCTTGGTCTGTAGAGGCTGACTGGAGAAAGTTCTGGGCCTGGAGAGGCTGCCGGGAGGTAGGAGTGGTGAGGTCGACTTGAGAAAGTTCAGGGCCTGGAGAGAAGGCTGGGAGGCAGGAGCTGGGTCTAAAGAGGCC</span>
-<span class="o">&gt;</span><span class="nx">read3</span>
-<span class="nx">TCAGCCTGGAAGGTTGAGGCTGCAGTCAGCTGCGATAGCACTACTACACTCCAGCCTTGGACAACAGAGGGAGACCTTTCGCTGTCACCCCTCTAGAATCCACGTATACGAAAATTCCAAATGTTAGTTGGGCATAGTGGCAAGCACCTG</span>
-</code></pre></div></div>
+$ cat LI5896452.1.fa                                                                                                                                                                    
+&gt;LI5896452.1 Liverpool 2 kg/dp/Kng
+ATGCTAG
+</code></pre>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/dplyr_column_ops" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/awk_fasta_manipulation" class="previous">Older Post</a>
               
           </div>
         </div>
