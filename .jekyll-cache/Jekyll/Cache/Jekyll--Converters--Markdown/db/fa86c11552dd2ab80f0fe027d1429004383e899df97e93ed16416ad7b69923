@@ -1,0 +1,18 @@
+I"&<p>Here is one request where user wanted to replace all commas, but not to replace if comma is present within quotes. Example and solution are as follows:</p>
+
+<p>input:</p>
+<pre><code class="language-code">
+Name,Age,"City, Country",Profession
+Mitch,27,"Melbourne,Australia",Student
+John,31,"Boston,USA",Chef
+
+</code></pre>
+<p>Expected output:</p>
+
+<pre><code class="language-code">
+Name      Age      "City,Country"      Profession
+Mitch       27        "Melbourne,Australia"      Student
+John        31       "Boston,USA",      Chef
+
+</code></pre>
+:ET

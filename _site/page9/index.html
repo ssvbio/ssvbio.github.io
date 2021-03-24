@@ -36,6 +36,8 @@
     <h1>Recent Posts</h1>
     <ul>
         
+          <li><a href="/sed_magic">Replace separator, without replacing separator in quotes</a></li>
+        
           <li><a href="/fastq_trimming">Extract reads between primers including one side primer only</a></li>
         
           <li><a href="/break_multifasta_with_awk">Break multifasta into multiple files with awk</a></li>
@@ -43,8 +45,6 @@
           <li><a href="/awk_fasta_manipulation">Manipulate fasta file with AWK</a></li>
         
           <li><a href="/dplyr_column_ops">Column operations using dplyr and tidyr</a></li>
-        
-          <li><a href="/pheatmap_change_rowcolors">Change row font color in pheatmap conditionally</a></li>
         
     </ul>
   </div>
@@ -61,47 +61,51 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/fastq_trimming">Mar 24, 2021 - Extract reads between primers including one side primer only</a></h1>
+                <h1><a href="/sed_magic">Mar 24, 2021 - Replace separator, without replacing separator in quotes</a></h1>
             <div class="post-content">
-            <p>There are times that biologists may have to extract sequences between primers or motifs. For eg aptamer sequencing requires user to trim reads as per the sequences instead of adapters. Cutadapt has a provision to retain sequences used in sequencing. However, some times, one may need to retain one side of the sequence. Following is example and solution (taken from biostars).</p>
+            <p>Here is one request where user wanted to replace all commas, but not to replace if comma is present within quotes. Example and solution are as follows:</p>
 
-<p>Example fastq</p>
+<p>input:</p>
+<pre><code class="language-code">
+Name,Age,"City, Country",Profession
+Mitch,27,"Melbourne,Australia",Student
+John,31,"Boston,USA",Chef
 
-<pre><code class="language-code">@A00877:568:HVV57DSXY:4:1101:27724:1408 1:N:0
-GGGTCAGTAGCGGACGGGAACTGCATCACGCAATACGACTCACTATAGGGTCAGTAGCGGAC
-+
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-@A00877:568:HVV57DSXY:4:1102:27724:1408 1:N:0
-GGGTCAGTAGCGGACGGGAAACGTCGCACGCAATACGACTCACTATAGGGTCAGTAGCGGAC
-+
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-@A00877:568:HVV57DSXY:4:1103:27724:1408 1:N:0
-GGGTCAGTAGCGGACGGGAACTGCACGTCAGCTGGCGACTCACTATAGGGTCAGTAGCGGAT
-+
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+</code></pre>
+<p>Expected output:</p>
+
+<pre><code class="language-code">
+Name      Age      "City,Country"      Profession
+Mitch       27        "Melbourne,Australia"      Student
+John        31       "Boston,USA",      Chef
+
 </code></pre>
 
-<p>Now the requirement is to extract read sequences between primers <strong>GGGTCAGTAGCGGAC</strong> and <strong>GGGTCAGTAGCGGAC</strong>. But retain 3’ primer sequence. Following is the solution</p>
+<p>Solution:</p>
 
-<pre><code class="language-code">$ cutadapt -e 0  -g GGGTCAGTAGCGGAC...GGGTCAGTAGCGGAC  --action=retain --discard-untrimmed  --quiet test.fq | cutadapt -u -17 - --quiet
+<pre><code class="language-code">$ sed -r 's/,/\t/g;s/("\w+)\t/\1,/g' test.txt 
 
-@A00877:568:HVV57DSXY:4:1101:27724:1408 1:N:0
-GGGTCAGTAGCGGACGGGAACTGCATCACGCAATACGACTCACTA
-+
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-@A00877:568:HVV57DSXY:4:1102:27724:1408 1:N:0
-GGGTCAGTAGCGGACGGGAAACGTCGCACGCAATACGACTCACTA
-+
-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+Name    Age "City, Country" Profession
+Mitch   27  "Melbourne,Australia"   Student
+John    31  "Boston,USA"    Chef
+
 </code></pre>
-<p>-e 0 is for zero errors in matching the primer sequence. Rest parameters are standard parameters.</p>
+
+<p>here is the explanation of the code</p>
+
+<pre><code class="language-code">sed -r -use extended regular expression.
+s/,/\t/g - Replace all commas with tab (first sed command)
+; - starts next sed command
+s/("\w+)\t/\1,/g - This has two parts: store a pattern, replace pattern followed by tab with pattern it self and comma. Here the pattern is ", one or more word characters. This way of recalling a pattern is called back-referencing.
+1 is order of capture pattern. If there are two patterns, they would be called after order of appearance.
+</code></pre>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/break_multifasta_with_awk" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/fastq_trimming" class="previous">Older Post</a>
               
           </div>
         </div>
