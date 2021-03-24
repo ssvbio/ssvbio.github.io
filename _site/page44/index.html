@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    23 March 2021
+    24 March 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/fastq_trimming">Extract reads between primers including one side primer only</a></li>
         
           <li><a href="/break_multifasta_with_awk">Break multifasta into multiple files with awk</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/dplyr_column_ops">Column operations using dplyr and tidyr</a></li>
         
           <li><a href="/pheatmap_change_rowcolors">Change row font color in pheatmap conditionally</a></li>
-        
-          <li><a href="/ggplot">A small tutorial on ggplot2</a></li>
         
     </ul>
   </div>
@@ -61,37 +61,47 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/break_multifasta_with_awk">Mar 23, 2021 - Break multifasta into multiple files with awk</a></h1>
+                <h1><a href="/fastq_trimming">Mar 24, 2021 - Extract reads between primers including one side primer only</a></h1>
             <div class="post-content">
-            <p>There are several ways to break a multifasta into small files. One of the requests I attempted is as follows:</p>
+            <p>There are times that biologists may have to extract sequences between primers or motifs. For eg aptamer sequencing requires user to trim reads as per the sequences instead of adapters. Cutadapt has a provision to retain sequences used in sequencing. However, some times, one may need to retain one side of the sequence. Following is example and solution (taken from biostars).</p>
 
-<pre><code class="language-code">$ cat test.fa                                                                                                                                                                           
-&gt;LI5896452.1 Liverpool 2 kg/dp/Kng
-ATGCTAG
-&gt;1582.LC madi kg 5/58/8
-GATGAT
+<p>Example fastq</p>
+
+<pre><code class="language-code">@A00877:568:HVV57DSXY:4:1101:27724:1408 1:N:0
+GGGTCAGTAGCGGACGGGAACTGCATCACGCAATACGACTCACTATAGGGTCAGTAGCGGAC
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+@A00877:568:HVV57DSXY:4:1102:27724:1408 1:N:0
+GGGTCAGTAGCGGACGGGAAACGTCGCACGCAATACGACTCACTATAGGGTCAGTAGCGGAC
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+@A00877:568:HVV57DSXY:4:1103:27724:1408 1:N:0
+GGGTCAGTAGCGGACGGGAACTGCACGTCAGCTGGCGACTCACTATAGGGTCAGTAGCGGAT
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 </code></pre>
-<p>Requirement is to create individual files for each sequence and each file name should be the text till first space in the  headers (for eg. if the header is &gt;LI5896452.1 Liverpool 2 kg/dp/Kng, file name should be LI5896452.1.fa). Here is the solution in awk.</p>
 
-<pre><code class="language-code">$ awk -v OFS="\n" '/^&gt;/ {getline seq; print $0,seq &gt; substr($1,2)".fa"}' test.fa  
+<p>Now the requirement is to extract read sequences between primers <strong>GGGTCAGTAGCGGAC</strong> and <strong>GGGTCAGTAGCGGAC</strong>. But retain 3’ primer sequence. Following is the solution</p>
+
+<pre><code class="language-code">$ cutadapt -e 0  -g GGGTCAGTAGCGGAC...GGGTCAGTAGCGGAC  --action=retain --discard-untrimmed  --quiet test.fq | cutadapt -u -17 - --quiet
+
+@A00877:568:HVV57DSXY:4:1101:27724:1408 1:N:0
+GGGTCAGTAGCGGACGGGAACTGCATCACGCAATACGACTCACTA
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+@A00877:568:HVV57DSXY:4:1102:27724:1408 1:N:0
+GGGTCAGTAGCGGACGGGAAACGTCGCACGCAATACGACTCACTA
++
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 </code></pre>
-
-<p>Now user should see two files and the output would be:</p>
-<pre><code class="language-code">$ cat 1582.LC.fa                                                                                                                                                                        
-&gt;1582.LC madi kg 5/58/8
-GATGAT
-
-$ cat LI5896452.1.fa                                                                                                                                                                    
-&gt;LI5896452.1 Liverpool 2 kg/dp/Kng
-ATGCTAG
-</code></pre>
+<p>-e 0 is for zero errors in matching the primer sequence. Rest parameters are standard parameters.</p>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/awk_fasta_manipulation" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/break_multifasta_with_awk" class="previous">Older Post</a>
               
           </div>
         </div>
