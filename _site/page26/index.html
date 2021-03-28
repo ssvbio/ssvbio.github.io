@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    24 March 2021
+    28 March 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/format_VEP_output">Format VEP text output with Miller</a></li>
         
           <li><a href="/sed_magic">Replace separator, without replacing separator in quotes</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/break_multifasta_with_awk">Break multifasta into multiple files with awk</a></li>
         
           <li><a href="/awk_fasta_manipulation">Manipulate fasta file with AWK</a></li>
-        
-          <li><a href="/dplyr_column_ops">Column operations using dplyr and tidyr</a></li>
         
     </ul>
   </div>
@@ -61,43 +61,24 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/sed_magic">Mar 24, 2021 - Replace separator, without replacing separator in quotes</a></h1>
+                <h1><a href="/format_VEP_output">Mar 28, 2021 - Format VEP text output with Miller</a></h1>
             <div class="post-content">
-            <p>Here is one request where user wanted to replace all commas, but not to replace if comma is present within quotes. Example and solution are as follows:</p>
+            <p>VEP (variant effect predictor) is an often used variant annotation tool. It outputs the results in multiple formats as per user supplied parameters. One such format is text (tab separated) format. However, some times, parsing VEP output could be time consuming for newbies. One of the newbie question to format VEP output is as follows:</p>
+<pre><code class="language-code">IMPACT=MODIFIER;DISTANCE=1246;STRAND=-1;BIOTYPE=transcribed_pseudogene;REFSEQ_MATCH=rseq_mrna_match;GIVEN_REF=T;USED_REF=T;HGVSg=chr1:g.13116T&gt;G;AF=0.0971;AFR_AF=0.0295;AMR_AF=0.121;EAS_AF=0.0248;EUR_AF=0.1869;SAS_AF=0.1534;MAX_AF=0.1869;MAX_AF_POPS=EUR
+IMPACT=MODIFIER;STRAND=1;BIOTYPE=transcribed_pseudogene;REFSEQ_MATCH=rseq_mrna_match;GIVEN_REF=T;USED_REF=T;HGVSc=NR_046018.2:n.464-105T&gt;G;HGVSg=chr1:g.13116T&gt;G;AF=0.0971;AFR_AF=0.0295;AMR_AF=0.121;EAS_AF=0.0248;EUR_AF=0.1869;SAS_AF=0.1534;MAX_AF=0.1869;MAX_AF_POPS=EUR
+IMPACT=MODIFIER;DISTANCE=4253;STRAND=-1;BIOTYPE=miRNA;REFSEQ_MATCH=rseq_mrna_match;GIVEN_REF=T;USED_REF=T;HGVSg=chr1:g.13116T&gt;G;AF=0.0971;AFR_AF=0.0295;AMR_AF=0.121;EAS_AF=0.0248;EUR_AF=0.1869;SAS_AF=0.1534;MAX_AF=0.1869;MAX_AF_POPS=EUR
+</code></pre>
+<p>One can write a program or use a regular program that can parse kvp (key-value pairs) text or write a script. However, the different KVPs in each line, make programmer life difficult. Such kind of uneven dkvp files are well handled by <strong>miller</strong> program and is available in most of the ubuntu/debian repos.</p>
 
-<p>input:</p>
+<p>Following is the code to format above input:</p>
 <pre><code class="language-code">
-Name,Age,"City, Country",Profession
-Mitch,27,"Melbourne,Australia",Student
-John,31,"Boston,USA",Chef
+$ mlr --d2p  --ifs ";"  unsparsify --fill-with "NA" file.txt                                                                                                                         
 
-</code></pre>
-<p>Expected output:</p>
+IMPACT   DISTANCE STRAND BIOTYPE                REFSEQ_MATCH    GIVEN_REF USED_REF HGVSg           AF     AFR_AF AMR_AF EAS_AF EUR_AF SAS_AF MAX_AF MAX_AF_POPS HGVSc
+MODIFIER 1246     -1     transcribed_pseudogene rseq_mrna_match T         T        chr1:g.13116T&gt;G 0.0971 0.0295 0.121  0.0248 0.1869 0.1534 0.1869 EUR         NA
+MODIFIER NA       1      transcribed_pseudogene rseq_mrna_match T         T        chr1:g.13116T&gt;G 0.0971 0.0295 0.121  0.0248 0.1869 0.1534 0.1869 EUR         NR_046018.2:n.464-105T&gt;G
+MODIFIER 4253     -1     miRNA                  rseq_mrna_match T         T        chr1:g.13116T&gt;G 0.0971 0.0295 0.121  0.0248 0.1869 0.1534 0.1869 EUR         NA
 
-<pre><code class="language-code">
-Name      Age      "City,Country"      Profession
-Mitch       27        "Melbourne,Australia"      Student
-John        31       "Boston,USA",      Chef
-
-</code></pre>
-
-<p>Solution:</p>
-
-<pre><code class="language-code">$ sed -r 's/,/\t/g;s/("\w+)\t/\1,/g' test.txt 
-
-Name    Age "City, Country" Profession
-Mitch   27  "Melbourne,Australia"   Student
-John    31  "Boston,USA"    Chef
-
-</code></pre>
-
-<p>here is the explanation of the code</p>
-
-<pre><code class="language-code">sed -r -use extended regular expression.
-s/,/\t/g - Replace all commas with tab (first sed command)
-; - starts next sed command
-s/("\w+)\t/\1,/g - This has two parts: store a pattern, replace pattern followed by tab with pattern it self and comma. Here the pattern is ", one or more word characters. This way of recalling a pattern is called back-referencing.
-1 is order of capture pattern. If there are two patterns, they would be called after order of appearance.
 </code></pre>
 
             </div>
@@ -105,7 +86,7 @@ s/("\w+)\t/\1,/g - This has two parts: store a pattern, replace pattern followed
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/fastq_trimming" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/sed_magic" class="previous">Older Post</a>
               
           </div>
         </div>
