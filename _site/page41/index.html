@@ -36,6 +36,8 @@
     <h1>Recent Posts</h1>
     <ul>
         
+          <li><a href="/extract_three_prime_utr_genes">Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></li>
+        
           <li><a href="/duplicate_dataframe">Duplicate a data frame</a></li>
         
           <li><a href="/format_VEP_output">Format VEP text output with Miller</a></li>
@@ -43,8 +45,6 @@
           <li><a href="/sed_magic">Replace separator, without replacing separator in quotes</a></li>
         
           <li><a href="/fastq_trimming">Extract reads between primers including one side primer only</a></li>
-        
-          <li><a href="/break_multifasta_with_awk">Break multifasta into multiple files with awk</a></li>
         
     </ul>
   </div>
@@ -61,64 +61,38 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/duplicate_dataframe">Apr 4, 2021 - Duplicate a data frame</a></h1>
+                <h1><a href="/extract_three_prime_utr_genes">Apr 4, 2021 - Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></h1>
             <div class="post-content">
-            <p>Some times, you may need to duplicate a dataframe with same column names. This can be either simple duplication where in duplicated data
-frame is next to current data frame. Variation of this would be to have
-duplicated columns next to each other with same column name.</p>
+            <p>One of the requests I have come across is to extract genes with more than one 3’ UTR exons. This is not tricky. However, scripts to do this are complex and gtf parsers are either half written or one has to write their own scripts to extract half tab separate file and Key-value (like dictionary in python) pair fields. Fortunately, I have come across a tool called <a href="https://gffutils.readthedocs.io/en/latest/">GFFutils</a> that helps us to do this.</p>
 
-<p>Let us create a data frame</p>
+<p>Please download the example gtf from <a href="https://raw.githubusercontent.com/csoneson/jcc/master/inst/extdata/Homo_sapiens.GRCh38.90.chr22.gtf.gz">here</a>. File is for chr22 only and it is around 100 kb. Idea here is to extract features of interest and then fields of interest, followed by grouping of data by genes, transcripts, followed by counting of 3’UTR feature, then filter the data where in count must be more than 1. Following is the code:</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">data.frame</span><span class="p">(</span><span class="w">
-    </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">3</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="m">5</span><span class="p">),</span><span class="w">
-    </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span><span class="s1">'b'</span><span class="p">,</span><span class="s1">'c'</span><span class="p">,</span><span class="s1">'d'</span><span class="p">,</span><span class="s1">'e'</span><span class="p">),</span><span class="w">
-    </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="s1">'b'</span><span class="p">,</span><span class="m">3</span><span class="p">,</span><span class="s1">'d'</span><span class="p">,</span><span class="m">5</span><span class="p">),</span><span class="w">
-    </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="s1">'c'</span><span class="p">,</span><span class="m">4</span><span class="p">,</span><span class="s1">'e'</span><span class="p">))</span><span class="w">
-</span><span class="n">df</span><span class="w">
-</span></code></pre></div></div>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   a b c d
-## 1 1 a 1 a
-## 2 2 b b 2
-## 3 3 c 3 c
-## 4 4 d d 4
-## 5 5 e 5 e
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>gtf_extract <span class="nt">-f</span> three_prime_utr <span class="nt">--fields</span> gene_id,gene_name,transcript_id,feature Homo_sapiens.GRCh38.90.chr22.gtf  | datamash <span class="nt">-f</span> <span class="nt">-s</span> <span class="nt">-g2</span>,3 count 3  | <span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span> <span class="s1">'NR ==1 {print "Gene_ID", "Gene_symbol","transcript", "3\047_UTR_Count"}; $5 &gt;1 {print $1,$2,$3,$5}'</span> 
 </code></pre></div></div>
 
-<p>First let us take the first case where duplicated data frames are next
-to each other</p>
+<p>Following is the partial output</p>
 
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data.frame</span><span class="p">(</span><span class="n">do.call</span><span class="p">(</span><span class="n">cbind</span><span class="p">,</span><span class="nf">rep</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="m">2</span><span class="p">)),</span><span class="w"> </span><span class="n">check.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w">
-</span></code></pre></div></div>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   a b c d a b c d
-## 1 1 a 1 a 1 a 1 a
-## 2 2 b b 2 2 b b 2
-## 3 3 c 3 c 3 c 3 c
-## 4 4 d d 4 4 d d 4
-## 5 5 e 5 e 5 e 5 e
-</code></pre></div></div>
-
-<p>Let us take the second case wheren in duplicated columns are next to
-each other.</p>
-
-<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data.frame</span><span class="p">(</span><span class="n">do.call</span><span class="p">(</span><span class="n">cbind</span><span class="p">,</span><span class="nf">rep</span><span class="p">(</span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">each</span><span class="o">=</span><span class="m">2</span><span class="p">)),</span><span class="w"> </span><span class="n">check.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w">
-</span></code></pre></div></div>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   a a b b c c d d
-## 1 1 1 a a 1 1 a a
-## 2 2 2 b b b b 2 2
-## 3 3 3 c c 3 3 c c
-## 4 4 4 d d d d 4 4
-## 5 5 5 e e 5 5 e e
-</code></pre></div></div>
+<pre><code class="language-code">Gene_ID Gene_symbol transcript  3'_UTR_Count
+ENSG00000283809 AC007326.4  ENST00000638240 2
+ENSG00000099889 ARVCF   ENST00000263207 2
+ENSG00000099968 BCL2L13 ENST00000399777 2
+ENSG00000099968 BCL2L13 ENST00000498133 3
+ENSG00000015475 BID ENST00000342111 3
+ENSG00000242259 C22orf39    ENST00000509549 21
+ENSG00000093009 CDC45   ENST00000263201 2
+ENSG00000093009 CDC45   ENST00000404724 2
+ENSG00000093009 CDC45   ENST00000407835 2
+ENSG00000093009 CDC45   ENST00000428937 5
+ENSG00000093009 CDC45   ENST00000437685 2
+............
+</code></pre>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/format_VEP_output" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/duplicate_dataframe" class="previous">Older Post</a>
               
           </div>
         </div>
