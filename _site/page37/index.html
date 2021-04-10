@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    04 April 2021
+    10 April 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/extract_lines_from_multi_sequence_multiline_fasta">Extract sequences(lines) from multiline, multisequence fasta</a></li>
         
           <li><a href="/extract_three_prime_utr_genes">Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/format_VEP_output">Format VEP text output with Miller</a></li>
         
           <li><a href="/sed_magic">Replace separator, without replacing separator in quotes</a></li>
-        
-          <li><a href="/fastq_trimming">Extract reads between primers including one side primer only</a></li>
         
     </ul>
   </div>
@@ -61,38 +61,53 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/extract_three_prime_utr_genes">Apr 4, 2021 - Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></h1>
+                <h1><a href="/extract_lines_from_multi_sequence_multiline_fasta">Apr 10, 2021 - Extract sequences(lines) from multiline, multisequence fasta</a></h1>
             <div class="post-content">
-            <p>One of the requests I have come across is to extract genes with more than one 3’ UTR exons. This is not tricky. However, scripts to do this are complex and gtf parsers are either half written or one has to write their own scripts to extract half tab separate file and Key-value (like dictionary in python) pair fields. Fortunately, I have come across a tool called <a href="https://gffutils.readthedocs.io/en/latest/">GFFutils</a> that helps us to do this.</p>
+            <p>One of the requests I got was to extract every 2 and 9 line from each multiline fasta sequence in a fasta file with multiple sequences. Follwing is the input example.</p>
 
-<p>Please download the example gtf from <a href="https://raw.githubusercontent.com/csoneson/jcc/master/inst/extdata/Homo_sapiens.GRCh38.90.chr22.gtf.gz">here</a>. File is for chr22 only and it is around 100 kb. Idea here is to extract features of interest and then fields of interest, followed by grouping of data by genes, transcripts, followed by counting of 3’UTR feature, then filter the data where in count must be more than 1. Following is the code:</p>
+<pre><code class="language-code">$ cat test.fa
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>gtf_extract <span class="nt">-f</span> three_prime_utr <span class="nt">--fields</span> gene_id,gene_name,transcript_id,feature Homo_sapiens.GRCh38.90.chr22.gtf  | datamash <span class="nt">-f</span> <span class="nt">-s</span> <span class="nt">-g2</span>,3 count 3  | <span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span> <span class="s1">'NR ==1 {print "Gene_ID", "Gene_symbol","transcript", "3\047_UTR_Count"}; $5 &gt;1 {print $1,$2,$3,$5}'</span> 
-</code></pre></div></div>
+&gt;seq1
+line1
+line2
+line3
+line4
+line5
+line6
+line7
+line8
+line9
+&gt;seq2
+sline1
+sline2
+sline3
+sline4
+sline5
+sline6
+sline7
+sline8
+sline9
 
-<p>Following is the partial output</p>
-
-<pre><code class="language-code">Gene_ID Gene_symbol transcript  3'_UTR_Count
-ENSG00000283809 AC007326.4  ENST00000638240 2
-ENSG00000099889 ARVCF   ENST00000263207 2
-ENSG00000099968 BCL2L13 ENST00000399777 2
-ENSG00000099968 BCL2L13 ENST00000498133 3
-ENSG00000015475 BID ENST00000342111 3
-ENSG00000242259 C22orf39    ENST00000509549 21
-ENSG00000093009 CDC45   ENST00000263201 2
-ENSG00000093009 CDC45   ENST00000404724 2
-ENSG00000093009 CDC45   ENST00000407835 2
-ENSG00000093009 CDC45   ENST00000428937 5
-ENSG00000093009 CDC45   ENST00000437685 2
-............
 </code></pre>
+<p>code and output:</p>
+
+<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">awk</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">RS</span><span class="o">=</span><span class="s2">"&gt;"</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">OFS</span><span class="o">=</span><span class="s2">"\n"</span> <span class="err">'</span><span class="kc">NR</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">{</span><span class="k">print</span> <span class="s2">"&gt;"</span><span class="nv">$1</span><span class="p">,</span><span class="nv">$3</span><span class="p">,</span><span class="nv">$10</span><span class="p">}</span><span class="err">'</span> <span class="nx">test</span><span class="p">.</span><span class="nx">fa</span>
+        
+<span class="o">&gt;</span><span class="nx">seq1</span>
+<span class="nx">line2</span>
+<span class="nx">line9</span>
+<span class="o">&gt;</span><span class="nx">seq2</span>
+<span class="nx">sline2</span>
+<span class="nx">sline9</span>
+
+</code></pre></div></div>
 
             </div>
           </div>
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/duplicate_dataframe" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/extract_three_prime_utr_genes" class="previous">Older Post</a>
               
           </div>
         </div>

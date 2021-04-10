@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Biologist's bioinformatics notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="/css/theme.css" rel="stylesheet" type="text/css">
+  <link href="/css/syntax.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <meta name="google-site-verification" content="fhL4tu7YrFAnIGAUl7DqfxgyLuyY6vE5h8o6fUwzoJM" />
+</head>
+
+<body>
+  <nav class="navbar-fixed-top bg-primary">
+    <span class="navbar-brand">Bioinformatics notes from a biologist</span>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/"><i class="fas fa-home fa-2x"></i> Home</a></li>
+      <li class="active"><a href="/archive.html"><i class="fas fa-archive fa-2x"></i> Archive</a></li>
+    </ul>
+  </nav>
+</body>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 hidden-xs">
+            <div class=well>
+  <div class="sidebar">
+    10 April 2021
+  </div>
+  <div class="sidebar">
+    <h1>Recent Posts</h1>
+    <ul>
+        
+          <li><a href="/extract_lines_from_multi_sequence_multiline_fasta">Extract sequences(lines) from multiline, multisequence fasta</a></li>
+        
+          <li><a href="/extract_three_prime_utr_genes">Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></li>
+        
+          <li><a href="/duplicate_dataframe">Duplicate a data frame</a></li>
+        
+          <li><a href="/format_VEP_output">Format VEP text output with Miller</a></li>
+        
+          <li><a href="/sed_magic">Replace separator, without replacing separator in quotes</a></li>
+        
+    </ul>
+  </div>
+  <div class="sidebar">
+    <h1>Links</h1>
+<ul>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/svsk/">Linkedin</a></li>
+  <li><a target="_blank" rel="noopener noreferrer" href="https://www.github.com/svsuresh">Github</a></li>
+</ul>
+
+  </div>
+</div>
+        </div>
+        <div class="col-md-9">
+          <div class="article">
+            <div class="well">
+                <h1><a href="/extract_lines_from_multi_sequence_multiline_fasta">Apr 10, 2021 - Extract sequences(lines) from multiline, multisequence fasta</a></h1>
+            <div class="post-content">
+            <p>One of the requests I got was to extract every 2 and 9 line from each multiline fasta sequence in a fasta file with multiple sequences. Follwing is the input example.</p>
+
+<pre><code class="language-code">$ cat test.fa
+
+&gt;seq1
+line1
+line2
+line3
+line4
+line5
+line6
+line7
+line8
+line9
+&gt;seq2
+sline1
+sline2
+sline3
+sline4
+sline5
+sline6
+sline7
+sline8
+sline9
+
+</code></pre>
+<p>code and output:</p>
+
+<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">awk</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">RS</span><span class="o">=</span><span class="s2">"&gt;"</span> <span class="o">-</span><span class="nx">v</span> <span class="kc">OFS</span><span class="o">=</span><span class="s2">"\n"</span> <span class="err">'</span><span class="kc">NR</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">{</span><span class="k">print</span> <span class="s2">"&gt;"</span><span class="nv">$1</span><span class="p">,</span><span class="nv">$3</span><span class="p">,</span><span class="nv">$10</span><span class="p">}</span><span class="err">'</span> <span class="nx">test</span><span class="p">.</span><span class="nx">fa</span>
+        
+<span class="o">&gt;</span><span class="nx">seq1</span>
+<span class="nx">line2</span>
+<span class="nx">line9</span>
+<span class="o">&gt;</span><span class="nx">seq2</span>
+<span class="nx">sline2</span>
+<span class="nx">sline9</span>
+
+</code></pre></div></div>
+
+            </div>
+          </div>
+          <div class="pagination">
+              
+              
+                <a class="btn btn-default" href="/extract_three_prime_utr_genes" class="previous">Older Post</a>
+              
+          </div>
+        </div>
+    </div>
+</div>
+
+<body>
+<html>	
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 footer navbar-inverse navbar-fixed-bottom">
+            <p class="copyright">&copy;2021 Biologist's bioinformatics notes. Powered by <a href="http://jekyllrb.com">Jekyll</a>, theme by <a href="https://github.com/scotte/jekyll-clean">Scott Emmons</a>
+            under
+            <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
