@@ -44,3 +44,47 @@ sline2
 sline9
 
 ```
+
+Now how about extracting only 2nd record (2nd fasta sequence from the list)
+
+```bash
+$ awk -v RS=">" -v OFS="\n" 'NR==3{print ">"$0}' test.fa            
+
+>seq2
+sline1
+sline2
+sline3
+sline4
+sline5
+sline6
+sline7
+sline8
+sline9
+
+```
+
+How about printing 2nd and 9th lines from sequence 2 in the multiline file
+
+```bash
+$ awk -v RS=">" -v OFS="\n" 'NR==3{print ">"$1,$3,$10}' test.fa       
+
+>seq2
+sline2
+sline9
+
+```
+
+How about printing 2nd and 9 lines from selected records (here 1 and 2 as there are just records):
+
+```bash
+
+$ awk -v RS=">" -v OFS="\n" 'NR==3 || NR==2{print ">"$1,$3,$10}' test.fa
+
+>seq1
+line2
+line9
+>seq2
+sline2
+sline9
+```
+
