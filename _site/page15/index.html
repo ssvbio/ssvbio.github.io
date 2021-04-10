@@ -102,6 +102,47 @@ sline9
 
 </code></pre></div></div>
 
+<p>Now how about extracting only 2nd record (2nd fasta sequence from the list)</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">RS</span><span class="o">=</span><span class="s2">"&gt;"</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="s1">'NR==3{print "&gt;"$0}'</span> test.fa            
+
+<span class="o">&gt;</span>seq2
+sline1
+sline2
+sline3
+sline4
+sline5
+sline6
+sline7
+sline8
+sline9
+
+</code></pre></div></div>
+
+<p>How about printing 2nd and 9th lines from sequence 2 in the multiline file</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">RS</span><span class="o">=</span><span class="s2">"&gt;"</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="s1">'NR==3{print "&gt;"$1,$3,$10}'</span> test.fa       
+
+<span class="o">&gt;</span>seq2
+sline2
+sline9
+
+</code></pre></div></div>
+
+<p>How about printing 2nd and 9 lines from selected records (here 1 and 2 as there are just records):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nv">$ </span><span class="nb">awk</span> <span class="nt">-v</span> <span class="nv">RS</span><span class="o">=</span><span class="s2">"&gt;"</span> <span class="nt">-v</span> <span class="nv">OFS</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="s1">'NR==3 || NR==2{print "&gt;"$1,$3,$10}'</span> test.fa
+
+<span class="o">&gt;</span>seq1
+line2
+line9
+<span class="o">&gt;</span>seq2
+sline2
+sline9
+</code></pre></div></div>
+
+
             </div>
           </div>
           <div class="pagination">
