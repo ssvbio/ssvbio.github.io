@@ -10,7 +10,6 @@ Let us load the libraries
 library(purrr)
 library(dplyr)
 ```
-
     ## 
     ## Attaching package: 'dplyr'
 
@@ -29,7 +28,6 @@ library(knitr)
 library(tibble)
 library(kableExtra)
 ```
-
     ## 
     ## Attaching package: 'kableExtra'
 
