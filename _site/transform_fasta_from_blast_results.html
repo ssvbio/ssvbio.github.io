@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    21 April 2021
+    01 May 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/groupby_and_select_large_sequence">Select longest sequence in a fasta with identical headers</a></li>
         
           <li><a href="/transform_fasta_from_blast_results">Make fasta from Blast results</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/extract_lines_from_multi_sequence_multiline_fasta">Extract sequences(lines) from multiline, multisequence fasta</a></li>
         
           <li><a href="/extract_three_prime_utr_genes">Extract genes and corresponsing transcripts with more than one 3' UTRs from a gtf</a></li>
-        
-          <li><a href="/duplicate_dataframe">Duplicate a data frame</a></li>
         
     </ul>
   </div>
@@ -222,7 +222,7 @@
     Sbjct  114465  TTTCTCTAGGTAATCTATTATTAACAACTTCTTTTCAACTTGTTTCACTATAA  114413
 </code></pre></div></div>
 <p>There are 3 hsps and user wants to combine the subject sequences. But note that the sequences are on opposite (negative strand) and are not contiguous. Following is the solution:</p>
-<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nx">grep</span> <span class="o">-</span><span class="nx">i</span> <span class="s2">"sbjct"</span> <span class="nx">test</span><span class="p">.</span><span class="nx">txt</span> <span class="o">|</span> <span class="nx">awk</span>  <span class="err">'</span><span class="p">{</span><span class="k">print</span> <span class="nv">$2</span><span class="p">,</span> <span class="nv">$4</span><span class="p">,</span> <span class="nv">$3</span><span class="p">,</span> <span class="p">(</span><span class="kc">NR</span><span class="o">&gt;</span><span class="mi">1</span> <span class="p">?</span> <span class="p">(</span><span class="nv">$2</span><span class="o">-</span><span class="nx">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span> <span class="p">:</span> <span class="mi">0</span><span class="p">);</span> <span class="nx">p</span><span class="o">=</span><span class="nv">$4</span><span class="p">}</span><span class="err">'</span> <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="p">{</span><span class="k">printf</span> <span class="s2">"%*s\n"</span><span class="p">,</span> <span class="nb">length</span><span class="p">(</span><span class="nv">$3</span><span class="p">)</span><span class="o">+</span><span class="nv">$4</span> <span class="p">,</span><span class="nv">$3</span> <span class="p">}</span><span class="err">'</span>  <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="p">{</span><span class="nb">gsub</span> <span class="p">(</span><span class="s2">" "</span><span class="p">,</span><span class="s2">"N"</span><span class="p">)}</span><span class="mi">1</span><span class="err">'</span> <span class="o">|</span> <span class="nx">tr</span> <span class="o">-</span><span class="nx">d</span> <span class="s2">"\n"</span> <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="kc">NR</span><span class="o">==</span><span class="mi">1</span> <span class="p">{</span><span class="k">print</span> <span class="s2">"&gt;seq1"</span><span class="p">}</span><span class="mi">1</span><span class="err">'</span> 
+<div class="language-awk highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$</span> <span class="nx">awk</span> <span class="err">'</span><span class="o">/</span><span class="nx">Sbjct</span><span class="o">/</span> <span class="p">{</span><span class="k">print</span> <span class="nv">$2</span><span class="p">,</span><span class="nv">$4</span><span class="p">,</span><span class="nv">$3</span><span class="p">}</span><span class="err">'</span> <span class="nx">test</span><span class="p">.</span><span class="nx">txt</span> <span class="o">|</span>  <span class="nx">awk</span>  <span class="err">'</span><span class="p">{</span><span class="k">print</span> <span class="nv">$1</span><span class="p">,</span> <span class="nv">$2</span><span class="p">,</span> <span class="nv">$3</span><span class="p">,</span> <span class="p">(</span><span class="kc">NR</span><span class="o">&gt;</span><span class="mi">1</span>  <span class="p">?</span> <span class="p">(</span><span class="nv">$1</span><span class="o">-</span><span class="nx">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span> <span class="p">:</span> <span class="mi">0</span><span class="p">);</span> <span class="nx">p</span><span class="o">=</span><span class="nv">$2</span><span class="p">}</span><span class="err">'</span> <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="p">{</span><span class="k">printf</span> <span class="s2">"%*s\n"</span><span class="p">,</span> <span class="nb">length</span><span class="p">(</span><span class="nv">$3</span><span class="p">)</span><span class="o">+</span><span class="nv">$4</span> <span class="p">,</span><span class="nv">$3</span> <span class="p">}</span><span class="err">'</span>  <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="p">{</span><span class="nb">gsub</span> <span class="p">(</span><span class="s2">" "</span><span class="p">,</span><span class="s2">"N"</span><span class="p">)}</span><span class="mi">1</span><span class="err">'</span> <span class="o">|</span> <span class="nx">tr</span> <span class="o">-</span><span class="nx">d</span> <span class="s2">"\n"</span> <span class="o">|</span> <span class="nx">awk</span> <span class="err">'</span><span class="kc">NR</span><span class="o">==</span><span class="mi">1</span> <span class="p">{</span><span class="k">print</span> <span class="s2">"&gt;seq1"</span><span class="p">}</span><span class="mi">1</span><span class="err">'</span>
 
 <span class="o">&gt;</span><span class="nx">seq1</span>
 <span class="nx">ATGATAATTGATACGACAGAAGTACAAACTATTAATTCTTTTTCTGGATTAGAATCCTTAAAAGAAGTATATGGACTCATATGGATTTTTGTCCCCATTTTAACCCTTGTCTTAGGAATCACAATGGGG</span><span class="o">-</span><span class="nx">TATTAGTCATTGTGTGATTAGAAAGAAAAATATCTGCAACAACACAACAATGTATTGGACCTGAATAGGCCGGCCCATTAGGAATTCTTCAAGCTTTAGCGGATGGGACGAAACTACTTTTGAAGGAGAATATTCTTCCGTCTAGAGGTAATATTCGCTTATTTAAGGTCGGACCCTCTATAGGGTTTATATCAATCCTACTAAGTT</span><span class="o">----------</span><span class="nx">TCCTTTTGGATATCACCTTGTTTTAGCTGATTTCAGTATAGGTGTTTTTTTATGGATTGCCTTTTCAAGTATTGTCCCTATTGGTCTTCTTATGTCAGGATATGAATCAAATAATAAGTATTCCTTTTCAGGCGGTCTACGAGCTGTAGATCAATAAATTAGTTATGAAATACCATTAACTCTATGTGTGTTAGCAATATCTCTACGTGTGATTCGTTAGAACATGAACTCTTTT</span><span class="o">-</span><span class="nx">CTC</span><span class="o">--</span><span class="nx">TTTTCTAGAAAAGAGATAAGAAATGAATTTAAATA</span><span class="o">-</span><span class="nx">CAATAAAATAGAGATATAATGCAATATGTAAATATGAATATGAACGAAAAGANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNTTTTTTATTAAAAATTTTAGTTCGATGAGTTAAACCAGAGAGTTATATGAGTGAAAAAAAAACTGCTCCTCAATTTGCAGTAAAACAATAAAAATCTCATTCCCTAGGTACAAGAA</span><span class="o">-</span><span class="nx">GAAATTTGAAGTAAACATAAGTTGTTTACCCCAATATTGAGATTATTTTCTTAGTCGTCATATCTTGAAGCGGATGCAAAAGATCCACTTTATTTATTACTATACTGGAGATCAATCAAAAAGAAGTGAC</span><span class="o">-</span><span class="nx">AGTTAGGAACACCAAAGTACGCAAAGGATGAGTAATGAAAATAATGTAAGATATCAAAGATAACAAAAAAAGTTATTTTTTCATAAAACTTTCCATAAAACGAATCCTAATTAAGGGCTTGTAATTGGTAGAAATGATCAAGCAGTACTTTCCCACGATTACGATCTAGAGTATGCTACTATTCGCTGATTAAATAAATGACTATCAAGAACAAATGAATCCTTTATTTTCTTGACTTTTTTTTTTTAGTTTTCAGAAGAAAGAACAGGAACAAGACAAATAGAATGCAATATAATAATATAATAAAATAAAGAATAAAACGGGAATAATAAGAAAATATTT</span><span class="o">-</span><span class="nx">GTT</span><span class="o">-</span><span class="nx">T</span><span class="o">-</span><span class="nx">C</span><span class="o">-</span><span class="nx">TTA</span><span class="o">----</span><span class="nx">ATACATATGCATATGGAAATTTTTATCATGATTCATTAACTAATGTCCAATTCTTTTTATTTATNNNNNNNNNNNNNNNNNNNNNGTGGCGTCAACCCATAGGGTTTCTAGTTCTTCTAATGTCTTCTCTAGCAGAATGTGAGAGATTACCTTTTAATTTACCAGAAGTAGAGGAGATATTAGTAGCAGGTTATCAAACCAAATATTCAGGTATAAAATACGGGTTATTTTATCTTGCTTCTTACCTAAATCTATTAGTTTCTTCATTCATTATTTGTAACAGTTCTTTACTTAGGTAGGTGGAATTTCTCTATTCCGTACATATCTCTTACTGAACTTTTTGGAATAAATAAAATGTTGAGAGTCTTTGTAATAGCAATTAATATCTTTATCACATTAGCTAAAGCTTATTTGTTTCTGTTCATTCCTATAACAACAAGATGGACTTTACCTAGGATGAGAATGGATCAATTATTAAATCTTGGATGAAAATTTCCTTTACCTATTTCTCTAGGTAATCTATTATTAACAACTTCTTTTCAACTTGTTTCACTATAA</span>
@@ -231,9 +231,9 @@
 
 <p>What is happening here:</p>
 
-<p>step 1. <strong>grep</strong> lines with <strong>Sbjct</strong></p>
+<p>step 1. Print lines starting with “Sbjct”, but only columns 2 (start coordinate), 4 (end coordinate), 3 (Sequence)</p>
 
-<p>step 2. Print column 2, 4 and 3 and print the difference between current line and previous line</p>
+<p>step 2. Print column start, stop, sequence and print the difference between current start line and previous stop line</p>
 
 <p>step 3. Pad the sequence length by the difference calculated before step (by empty spaces)</p>
 
@@ -246,6 +246,8 @@
             </div>
           </div>
           <div class="pagination">
+              
+                <a class="btn btn-default" href="/groupby_and_select_large_sequence" class="next">Newer Post</a>
               
               
                 <a class="btn btn-default" href="/locate_base_position" class="previous">Older Post</a>
