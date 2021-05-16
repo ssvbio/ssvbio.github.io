@@ -20,3 +20,5 @@ highlighter: rouge
 markdown: kramdown
 plugins: ['jekyll-paginate']
 exclude: ['README.md']
+sass:
+  sass_dir: css
