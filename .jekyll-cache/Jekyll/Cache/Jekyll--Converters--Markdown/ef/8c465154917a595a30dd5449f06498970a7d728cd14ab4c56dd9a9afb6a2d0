@@ -1,0 +1,4 @@
+I"Ñ<p>In one of the my earlier posts <a href="/pheatmap_change_rowcolors">here</a>, I have explained how to change the row font colors i.e gene names as per their expression direction (<strong>up</strong> or <strong>down</strong>). However, recently, there was a question on how to increase the row font size. You can understand the issue, if you see below image:</p>
+
+<p><img src="/images/heatmap_before_19052021.png" alt="heatmap_before" class="align-center" /></p>
+:ET
