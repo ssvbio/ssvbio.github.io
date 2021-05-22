@@ -1,13 +1,6 @@
----
-layout: post
-title: Parse NCBI human reference file to a standard reference file
-tag: NCBI seqkit grep
----
+I"’<p>Many bioinformaticians/ computational biologists will make a common mistake once or twice in their career. One such is to mix reference files. For eg. reference fill will have chromosomes denoted by numbers (1,2,3 etc), and vcf file is denoted by alphanumeric string (chr1, chr2, chr3 etc). To add to this, each bioinformaticis server has itâ€™s own formatting for reference files. Let us take NCBI for today. I have downloaded recent GRCh38 assembly from <a href="https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/">here</a>. Headers of the sequences in file is  a long list and few of them are as follows.</p>
 
-Many bioinformaticians/ computational biologists will make a common mistake once or twice in their career. One such is to mix reference files. For eg. reference fill will have chromosomes denoted by numbers (1,2,3 etc), and vcf file is denoted by alphanumeric string (chr1, chr2, chr3 etc). To add to this, each bioinformaticis server has it's own formatting for reference files. Let us take NCBI for today. I have downloaded recent GRCh38 assembly from [here](https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/). Headers of the sequences in file is  a long list and few of them are as follows.
-
-```bash
-
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
 NC_000001.11 Homo sapiens chromosome 1, GRCh38.p13 Primary Assembly
 NT_187361.1 Homo sapiens chromosome 1 unlocalized genomic scaffold, GRCh38.p13 Primary Assembly HSCHR1_CTG1_UNLOCALIZED
 NT_187362.1 Homo sapiens chromosome 1 unlocalized genomic scaffold, GRCh38.p13 Primary Assembly HSCHR1_CTG2_UNLOCALIZED
@@ -54,11 +47,47 @@ NT_187382.1 Homo sapiens chromosome 15 unlocalized genomic scaffold, GRCh38.p13 
 NC_000016.10 Homo sapiens chromosome 16, GRCh38.p13 Primary Assembly
 NT_187383.1 Homo sapiens chromosome 16 unlocalized genomic scaffold, GRCh38.p13 Primary Assembly HSCHR16_RANDOM_CTG1
 
-``` 
+</code></pre></div></div>
 
-Now we need to extract only chromosome and mitochondria related and convert the headers to following format
+<p>Now we need to extract only chromosome and mitochondria related and convert the headers to following format</p>
 
-```bash
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chr 1
+chr 2
+chr 3
+chr 4
+chr 5
+chr 6
+chr 7
+chr 8
+chr 9
+chr 10
+chr 11
+chr 12
+chr 13
+chr 14
+chr 15
+chr 16
+chr 17
+chr 18
+chr 19
+chr 20
+chr 21
+chr 22
+chr X
+chr Y
+chr MT
+</code></pre></div></div>
+
+<p>Now let us do this in steps:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nv">$ </span>seqkit <span class="nb">grep</span> <span class="nt">-vrinp</span> <span class="s2">"scaffold|novel|fix"</span> GRCh38_latest_genomic.fna | <span class="nb">sed</span> <span class="nt">-r</span> <span class="s1">'/^&gt;/ s/.*\s(.*),\s.*/&gt;chr \1/;s/mitochondrion/MT/'</span> <span class="o">&gt;</span> grch38_chr_only.fna 
+
+</code></pre></div></div>
+<p>Now let us check the headers</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="nv">$seqkit</span> <span class="nb">seq</span> <span class="nt">-n</span> grch38_chr_only.fna 
 chr 1
 chr 2
 chr 3
@@ -84,51 +113,12 @@ chr 22
 chr X
 chr Y
 chr MT
-```
+</code></pre></div></div>
 
-Now let us do this in steps:
+<p>Now if we want to have only numbered (without <code class="language-plaintext highlighter-rouge">chr</code>) fastas, let us try this:</p>
 
-```bash
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>seqkit <span class="nb">grep</span> <span class="nt">-vrinp</span> <span class="s2">"scaffold|novel|fix"</span> GRCh38_latest_genomic.fna | <span class="nb">sed</span> <span class="nt">-r</span> <span class="s1">'/^&gt;/ s/.*\s(.*),\s.*/&gt;\1/;s/mitochondrion/MT/'</span> <span class="o">&gt;</span> GRCh38_latest_genomic_int.fna
 
-$ seqkit grep -vrinp "scaffold|novel|fix" GRCh38_latest_genomic.fna | sed -r '/^>/ s/.*\s(.*),\s.*/>chr \1/;s/mitochondrion/MT/' > grch38_chr_only.fna 
+</code></pre></div></div>
 
-```
-Now let us check the headers
-
-```bash
-
-$seqkit seq -n grch38_chr_only.fna 
-chr 1
-chr 2
-chr 3
-chr 4
-chr 5
-chr 6
-chr 7
-chr 8
-chr 9
-chr 10
-chr 11
-chr 12
-chr 13
-chr 14
-chr 15
-chr 16
-chr 17
-chr 18
-chr 19
-chr 20
-chr 21
-chr 22
-chr X
-chr Y
-chr MT
-```
-
-Now if we want to have only numbered (without `chr`) fastas, let us try this:
-
-```bash
-$ seqkit grep -vrinp "scaffold|novel|fix" GRCh38_latest_genomic.fna | sed -r '/^>/ s/.*\s(.*),\s.*/>\1/;s/mitochondrion/MT/' > GRCh38_latest_genomic_int.fna
-
-```
-
+:ET
