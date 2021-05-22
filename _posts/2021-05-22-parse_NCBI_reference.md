@@ -88,13 +88,13 @@ chr MT
 
 Now let us do this in steps:
 
-1.First index the genome.fna
+1. First index the genome.fna
 
 ```bash
 $ samtools faidx GRCh38_latest_genomic.fna 
 ```
 
-2.Now this would create a .fai file. This would contain all the contigs (headers) within NCBI reference. Let us grep this file with NC. This would print all the headers with NC (assumption is that all the headers with NC in them are chromosome sequences)
+2. Now this would create a .fai file. This would contain all the contigs (headers) within NCBI reference. Let us grep this file with NC. This would print all the headers with NC (assumption is that all the headers with NC in them are chromosome sequences)
 
 ```bash
 
@@ -128,14 +128,14 @@ NC_012920.1 Homo sapiens mitochondrion, complete genome
 
 ```
 
-3.Now let use this file to grep only NC sequences from oririginal genome file using seqkit
+3. Now let use this file to grep only NC sequences from oririginal genome file using seqkit
 
 ```bash
 $ seqkit grep -f file.txt GRCh38_latest_genomic.fna > GRCh38_latest_genomic_chr_contigs.fna
 
 ```
 
-4.Now we use the **file.txt** to rename fasta headers using seqkit using Key-Value pair (KVP) file. First column should have matching header lines of the sequences (sequence names before, without `>`) and second column should have expected/new names for each entry. Now we can do that against each line in file.txt. We can take a different route. seqkit rename supports regex. We can use that. For this, let us copy the first column to second column with awk:
+4. Now we use the **file.txt** to rename fasta headers using seqkit using Key-Value pair (KVP) file. First column should have matching header lines of the sequences (sequence names before, without `>`) and second column should have expected/new names for each entry. Now we can do that against each line in file.txt. We can take a different route. seqkit rename supports regex. We can use that. For this, let us copy the first column to second column with awk:
 
 ```awk
 $ awk -v OFS="\t" '{print $0,$0}'  file.txt > file1.txt
@@ -160,13 +160,13 @@ NC_000010.11 Homo sapiens chromosome 10, GRCh38.p13 Primary Assembly	NC_000010.1
 
 ```
 
-5.Now that it is done, let us now get to the change the names
+5. Now that it is done, let us now get to the change the names
 
 ```code
 $ seqkit replace --kv-file file.txt -p ".*sapiens\s(\w{3}).*\s([0-9]+|X|Y),.*" --replacement "\${1} \${2}{kv}"  GRCh38_latest_genomic_chr_contigs.fna | seqkit replace -p ".*sapiens\s(\w{3}).*,.*" -r "chr MT" > GRCh38_latest_genomic_chr.fna
 ```
 
-6.Now we have GRCh38_latest_genomic_chr.fna with following headers:
+6. Now we have GRCh38_latest_genomic_chr.fna with following headers:
 
 ```code
 
