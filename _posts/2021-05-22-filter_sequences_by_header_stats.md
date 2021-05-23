@@ -17,16 +17,19 @@ GCTTGTGTTGGTTGTTGTGTTGCCTGTCTTGGTGGCGGTTGTGTTGGCTGCTTTCGTGTCAGTCTCTTCACCGATGTTAT
 Now user wants to filter sequences with more than length 10 and coverage more than 15. Here is the python code
 
 ```python
-#! /usr/bin/env python
+
 from Bio import SeqIO
 import sys
 
 input=sys.argv[1]
 output=sys.argv[2]
+out=[]
 for i in SeqIO.parse(input,"fasta"):
      isplit=i.id.rsplit("_")
      if (int(isplit[3])>20 and int(float(isplit[5]))>100) :
-         SeqIO.write(i, output, "fasta")
+         out.append(i)
+
+SeqIO.write(out, output, "fasta")
 
 ```
 output from the file
