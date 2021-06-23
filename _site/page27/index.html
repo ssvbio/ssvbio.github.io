@@ -30,11 +30,13 @@
         <div class="col-md-3 hidden-xs">
             <div class=well>
   <div class="sidebar">
-    01 June 2021
+    24 June 2021
   </div>
   <div class="sidebar">
     <h1>Recent Posts</h1>
     <ul>
+        
+          <li><a href="/know_file_type">Determine file type without extension or with extension</a></li>
         
           <li><a href="/gc_calculation_python">Calculate GC content from multiline fasta with gaps in sequences</a></li>
         
@@ -43,8 +45,6 @@
           <li><a href="/fill_na_values">Replace empty values in text files with awk</a></li>
         
           <li><a href="/percentage_bars">Bar plot with unbalanced data</a></li>
-        
-          <li><a href="/trim_sequences">Trim fasta sequences based on a sequence in fasta file</a></li>
         
     </ul>
   </div>
@@ -61,48 +61,23 @@
         <div class="col-md-9">
           <div class="article">
             <div class="well">
-                <h1><a href="/gc_calculation_python">May 28, 2021 - Calculate GC content from multiline fasta with gaps in sequences</a></h1>
+                <h1><a href="/know_file_type">Jun 24, 2021 - Determine file type without extension or with extension</a></h1>
             <div class="post-content">
-            <p>One of the requests I came across to use basic python (without importing external libraries) for parsing multiline fastas with gaps in sequence. Example fasta is as follows:</p>
+            <p>Several times, we would like to know the file types and then run the functions on the file. In *nix, there is a command named “file” that would help user to find the file type based on magic number of file type. Here is the python code to find the type of a file and example file check is gzip. Please run the code and let me know if you have any issues.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span>seq1
-atgc
-c t ga
-<span class="o">&gt;</span>seq2
-atcgc
-actg
-</code></pre></div></div>
-<p>Here is the python code:</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">magic</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="nb">input</span><span class="o">=</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="c1">#input = "test.fa"
-</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
-    <span class="n">seq</span> <span class="o">=</span> <span class="n">w</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"&gt;"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">]</span>
+<span class="n">input_file</span><span class="o">=</span><span class="n">sys</span><span class="p">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">detected</span> <span class="o">=</span> <span class="n">magic</span><span class="p">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">mime</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">extn</span><span class="o">=</span> <span class="n">detected</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s">"/"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"file type is "</span> <span class="o">+</span> <span class="n">extn</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
-    <span class="n">_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">_sequence</span> <span class="o">=</span> <span class="s">""</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]).</span><span class="n">replace</span><span class="p">(</span><span class="s">" "</span><span class="p">,</span><span class="s">""</span><span class="p">)</span>
-    <span class="n">gc_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_sequence</span><span class="p">.</span><span class="n">upper</span><span class="p">().</span><span class="n">count</span><span class="p">,</span> <span class="p">[</span><span class="s">"G"</span><span class="p">,</span> <span class="s">"C"</span><span class="p">]))</span>
-    <span class="n">gc_perc</span> <span class="o">=</span> <span class="p">(</span><span class="n">gc_count</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">_sequence</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span>
-    <span class="n">_temp_ouput</span> <span class="o">=</span> <span class="p">[</span><span class="n">_id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_sequence</span><span class="p">),</span> <span class="n">gc_perc</span><span class="p">]</span>
-    <span class="n">output</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">_temp_ouput</span><span class="p">)</span>
-
-<span class="p">[</span><span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">output</span><span class="p">]</span>
-
-</code></pre></div></div>
-
-<p>ouput from the code</p>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">%</span> <span class="p">.</span><span class="o">/</span><span class="n">test</span><span class="p">.</span><span class="n">py</span> <span class="n">test</span><span class="p">.</span><span class="n">fa</span> 
-
-<span class="p">[</span><span class="s">'seq1'</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">]</span>
-<span class="p">[</span><span class="s">'seq2'</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mf">55.55555555555556</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">extn</span><span class="o">==</span><span class="s">"gzip"</span><span class="p">:</span>
+    <span class="k">print</span> <span class="p">(</span><span class="s">"file is a gzip"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"not gzip"</span><span class="p">)</span>
 </code></pre></div></div>
 
             </div>
@@ -110,7 +85,7 @@ actg
           <div class="pagination">
               
               
-                <a class="btn btn-default" href="/split_snp_records_to_fa" class="previous">Older Post</a>
+                <a class="btn btn-default" href="/gc_calculation_python" class="previous">Older Post</a>
               
           </div>
         </div>
